@@ -1,0 +1,76 @@
+<!-- Modal Produto -->
+<div id="modalProduto"
+    class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div
+        class="modal-content bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full scale-95 opacity-0 transition-all duration-300">
+        <h3 id="modalProdutoTitulo" class="text-xl font-bold text-gray-900 dark:text-white mb-4">Adicionar Produto</h3>
+        <form id="produtoForm" class="space-y-4">
+            <input type="hidden" id="produtoId" />
+
+            <label class="flex flex-col">
+                <span class="text-gray-900 dark:text-white text-sm font-medium pb-2">Nome *</span>
+                <input type="text" id="produtoNome" required
+                    class="form-input rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 h-12 p-3"
+                    placeholder="Ex: Buquê de Rosas" />
+            </label>
+
+            <label class="flex flex-col">
+
+                <div class="flex gap-3 pt-4">
+                    <button type="submit"
+                        class="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-primary/90">Salvar</button>
+                    <button type="button" onclick="fecharModalProduto()"
+                        class="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white py-2 rounded-lg hover:bg-gray-300">Cancelar</button>
+                </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Feriado -->
+<div id="modalFeriado"
+    class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div
+        class="modal-content bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full scale-95 opacity-0 transition-all duration-300">
+        <h3 id="modalFeriadoTitulo" class="text-xl font-bold text-gray-900 dark:text-white mb-4">Adicionar Feriado</h3>
+        <form id="feriadoForm" class="space-y-4">
+            <input type="hidden" id="feriadoId" />
+
+            <label class="flex flex-col">
+                <span class="text-gray-900 dark:text-white text-sm font-medium pb-2">Data *</span>
+                <input type="date" id="feriadoData" required
+                    class="form-input rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 h-12 p-3" />
+            </label>
+
+            <label class="flex flex-col">
+                <span class="text-gray-900 dark:text-white text-sm font-medium pb-2">Nome *</span>
+                <input type="text" id="feriadoNome" required
+                    class="form-input rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 h-12 p-3"
+                    placeholder="Ex: Dia das Mães" />
+            </label>
+
+            <label class="flex flex-col">
+                <span class="text-gray-900 dark:text-white text-sm font-medium pb-2">Tipo</span>
+                <select id="feriadoTipo"
+                    class="form-select rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 h-12 p-3">
+                    <option value="nacional">Nacional</option>
+                    <option value="estadual">Estadual</option>
+                    <option value="municipal">Municipal</option>
+                    <option value="comercial">Comercial</option>
+                </select>
+            </label>
+
+            <label class="flex items-center gap-2">
+                <input type="checkbox" id="feriadoAtivo" checked
+                    class="form-checkbox rounded text-primary focus:ring-primary" />
+                <span class="text-gray-900 dark:text-white text-sm font-medium">Feriado Ativo</span>
+            </label>
+
+            <div class="flex gap-3 pt-4">
+                <button type="submit"
+                    class="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-primary/90">Salvar</button>
+                <button type="button" onclick="fecharModalFeriado()"
+                    class="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white py-2 rounded-lg hover:bg-gray-300">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>

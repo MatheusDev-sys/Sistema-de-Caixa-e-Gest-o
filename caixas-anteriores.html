@@ -1,0 +1,383 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Caixas Anteriores - Mande Flores</title>
+    <link rel="icon" type="image/png" href="assets/images/logo.png">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.0/jspdf.plugin.autotable.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#b447eb",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#1c1121",
+                    },
+                    fontFamily: { "display": ["Inter", "sans-serif"] },
+                    borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="font-display bg-background-light dark:bg-background-dark">
+    <div class="relative flex h-auto min-h-screen w-full">
+        <div id="app-container" class="flex h-full min-h-screen w-full">
+
+            <!-- SIDEBAR FIXA -->
+            <aside
+                class="w-64 bg-white/50 dark:bg-black/20 backdrop-blur-lg border-r border-white/30 dark:border-black/30 h-screen p-4 flex flex-col sticky top-0">
+                <div class="mb-8">
+                    <div class="flex items-center gap-3 px-2 mb-4">
+                        <div class="w-10 h-10">
+                            <img src="assets/images/logo.png" alt="Logo" class="w-full h-full object-contain"
+                                onerror="this.style.display='none'" />
+                        </div>
+                        <h1 class="text-xl font-bold text-gray-900 dark:text-white">Mande Flores</h1>
+                    </div>
+                                        <div class="px-2 flex items-center gap-3">
+                        <div>
+                            <p class="text-sm text-gray-700 dark:text-gray-300 font-medium" id="sidebarUserName">UsuÃ¡rio</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 capitalize" id="sidebarUserCargo">Cargo</p>
+                        </div>
+                    </div>
+                </div>
+                <nav class="space-y-2 flex-1">
+                    <a href="dashboard.html"
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-black/20 transition-colors">
+                        <span class="material-symbols-outlined">dashboard</span>
+                        Dashboard
+                    </a>
+                    <a href="caixa.html"
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-black/20 transition-colors">
+                        <span class="material-symbols-outlined">point_of_sale</span>
+                        Caixa
+                    </a>
+                    <a href="caixas-anteriores.html"
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/20 text-primary font-medium transition-colors">
+                        <span class="material-symbols-outlined">history</span>
+                        Histórico
+                    </a>
+                    <a href="admin.html" id="linkAdminSidebar"
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-black/20 transition-colors"
+                        style="display:none">
+                        <span class="material-symbols-outlined">settings</span>
+                        Admin
+                    </a>
+                </nav>
+                <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <button onclick="auth.fazerLogout()"
+                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-black/20 w-full transition-colors">
+                        <span class="material-symbols-outlined">logout</span>
+                        Sair
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="flex-1 p-4 sm:p-6 lg:p-10">
+                <div class="mx-auto max-w-7xl">
+                    <!-- Page Header -->
+                    <div class="flex flex-wrap justify-between gap-4 items-center mb-8">
+                        <div class="flex flex-col gap-1">
+                            <p
+                                class="text-black dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
+                                Caixas Anteriores</p>
+                            <p class="text-black/60 dark:text-white/60 text-base font-normal leading-normal">Consulte o
+                                Histórico de todos os caixas fechados.</p>
+                        </div>
+                    </div>
+
+                    <!-- Search Bar -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full mb-6">
+                        <label class="flex flex-col min-w-40 h-12 w-full lg:col-span-1">
+                            <div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+                                <div
+                                    class="text-black/60 dark:text-white/60 flex border-none bg-black/5 dark:bg-white/10 items-center justify-center pl-4 rounded-l-lg border-r-0">
+                                    <span class="material-symbols-outlined">search</span>
+                                </div>
+                                <input id="searchInput"
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-black dark:text-white focus:outline-0 focus:ring-0 border-none bg-black/5 dark:bg-white/10 h-full placeholder:text-black/60 placeholder:dark:text-white/60 px-4 pl-2 text-base font-normal leading-normal"
+                                    placeholder="Buscar por data ou funcionário..." />
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="px-0 py-3">
+                        <div
+                            class="flex overflow-hidden rounded-xl border border-black/10 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-md">
+                            <table class="flex-1 w-full font-display">
+                                <thead>
+                                    <tr class="bg-transparent border-b border-b-black/10 dark:border-b-white/10">
+                                        <th
+                                            class="px-4 py-3 text-left text-black dark:text-white text-sm font-medium leading-normal w-1/6">
+                                            Data</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-black dark:text-white text-sm font-medium leading-normal w-1/6">
+                                            Período</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-black dark:text-white text-sm font-medium leading-normal w-1/6">
+                                            Total</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-black dark:text-white text-sm font-medium leading-normal w-1/6">
+                                            Quem abriu</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-black dark:text-white text-sm font-medium leading-normal w-1/6">
+                                            Quem fechou</th>
+                                        <th
+                                            class="px-4 py-3 text-left text-black dark:text-white text-sm font-medium leading-normal w-1/6">
+                                            Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="caixasTableBody">
+                                    <!-- Dados serão inseridos via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js">`n    <script src="js/avatar.js"></script></script>
+    <!-- components.js REMOVIDO -->
+    <script>
+        // Utilitários
+        const utils = {
+            formatarMoeda: (valor) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor),
+            formatarData: (data) => new Date(data + 'T00:00:00').toLocaleDateString('pt-BR'),
+            formatarDataHora: (dataHora) => new Date(dataHora).toLocaleString('pt-BR')
+        };
+
+        // Inicializar sidebar e carregar dados
+        document.addEventListener('DOMContentLoaded', async () => {
+            const session = await auth.verificarAutenticacao();
+            if (session) {
+                const usuario = await auth.obterUsuarioAtual();
+                if (usuario) {
+                    document.getElementById('sidebarUserName').textContent = usuario.nome;
+                    document.getElementById('sidebarUserCargo').textContent = usuario.cargo;
+
+                    if (usuario.cargo === 'admin' || usuario.cargo === 'gerente') {
+                        document.getElementById('linkAdminSidebar').style.display = 'flex';
+                    }
+                }
+            }
+
+            await carregarCaixas();
+            document.getElementById('searchInput').addEventListener('input', filtrarCaixas);
+        });
+
+        let caixas = [];
+
+        // Carregar caixas fechados
+        async function carregarCaixas() {
+            try {
+                const { data, error } = await supabase
+                    .from('caixas')
+                    .select(`
+                        *,
+                        aberto_por_usuario:usuarios!caixas_aberto_por_fkey(nome),
+                        fechado_por_usuario:usuarios!caixas_fechado_por_fkey(nome)
+                    `)
+                    .eq('status', 'fechado')
+                    .order('data', { ascending: false })
+                    .order('periodo', { ascending: false });
+
+                if (error) throw error;
+
+                caixas = data;
+                renderizarCaixas(caixas);
+            } catch (error) {
+                console.error('Erro ao carregar caixas:', error);
+            }
+        }
+
+        // Renderizar tabela
+        function renderizarCaixas(dados) {
+            const tbody = document.getElementById('caixasTableBody');
+
+            if (dados.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                            Nenhum caixa encontrado
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = dados.map(caixa => `
+                <tr class="border-t border-t-black/5 dark:border-t-white/5 hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+                    <td class="h-[72px] px-4 py-2 text-black/70 dark:text-white/70 text-sm font-normal leading-normal">${utils.formatarData(caixa.data)}</td>
+                    <td class="h-[72px] px-4 py-2 text-black/70 dark:text-white/70 text-sm font-normal leading-normal capitalize">${caixa.periodo}</td>
+                    <td class="h-[72px] px-4 py-2 text-black/70 dark:text-white/70 text-sm font-normal leading-normal">${utils.formatarMoeda(caixa.saldo_final || 0)}</td>
+                    <td class="h-[72px] px-4 py-2 text-black/70 dark:text-white/70 text-sm font-normal leading-normal">${caixa.aberto_por_usuario?.nome || '-'}</td>
+                    <td class="h-[72px] px-4 py-2 text-black/70 dark:text-white/70 text-sm font-normal leading-normal">${caixa.fechado_por_usuario?.nome || '-'}</td>
+                    <td class="h-[72px] px-4 py-2 text-primary text-sm font-bold leading-normal tracking-[0.015em]">
+                        <button onclick="gerarPDFCaixa('${caixa.id}')" class="hover:underline">Ver Detalhes / PDF</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Filtrar caixas
+        function filtrarCaixas() {
+            const termo = document.getElementById('searchInput').value.toLowerCase();
+            const filtrados = caixas.filter(caixa =>
+                caixa.data.includes(termo) ||
+                caixa.aberto_por_usuario?.nome.toLowerCase().includes(termo) ||
+                caixa.fechado_por_usuario?.nome.toLowerCase().includes(termo)
+            );
+            renderizarCaixas(filtrados);
+        }
+
+        // Gerar PDF do caixa
+        async function gerarPDFCaixa(caixaId) {
+            try {
+                const { data: caixa, error: caixaError } = await supabase
+                    .from('caixas')
+                    .select('*')
+                    .eq('id', caixaId)
+                    .single();
+
+                if (caixaError) throw caixaError;
+
+                const { data: vendas, error: vendasError } = await supabase
+                    .from('vendas')
+                    .select('*')
+                    .eq('caixa_id', caixaId)
+                    .order('criado_em');
+
+                if (vendasError) throw vendasError;
+
+                const { data: retiradas, error: retiradasError } = await supabase
+                    .from('retiradas')
+                    .select('*')
+                    .eq('caixa_id', caixaId)
+                    .order('criado_em');
+
+                if (retiradasError) throw retiradasError;
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                const rosaMedio = [180, 71, 235];
+                const cinzaEscuro = [107, 114, 128];
+
+                doc.setFillColor(...rosaMedio);
+                doc.rect(0, 0, 210, 40, 'F');
+
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(24);
+                doc.setFont(undefined, 'bold');
+                doc.text('Mande Flores', 105, 20, { align: 'center' });
+
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'normal');
+                doc.text('Fechamento de Caixa', 105, 30, { align: 'center' });
+
+                doc.setTextColor(...cinzaEscuro);
+                doc.setFontSize(10);
+                let y = 50;
+
+                doc.text(`Data: ${utils.formatarData(caixa.data)}`, 20, y);
+                doc.text(`Período: ${caixa.periodo === 'manha' ? 'Manhã' : 'Noite'}`, 120, y);
+                y += 7;
+                doc.text(`Abertura: ${utils.formatarDataHora(caixa.aberto_em)}`, 20, y);
+                doc.text(`Fechamento: ${utils.formatarDataHora(caixa.fechado_em)}`, 120, y);
+
+                y += 15;
+
+                if (vendas.length > 0) {
+                    doc.setFontSize(14);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('Vendas', 20, y);
+                    y += 7;
+
+                    const vendasData = vendas.map(v => [
+                        `${v.quantidade}x`,
+                        v.descricao,
+                        v.pagamento,
+                        utils.formatarMoeda(v.valor)
+                    ]);
+
+                    doc.autoTable({
+                        startY: y,
+                        head: [['Qtd', 'Descrição', 'Pagamento', 'Valor']],
+                        body: vendasData,
+                        theme: 'striped',
+                        headStyles: { fillColor: rosaMedio },
+                        margin: { left: 20, right: 20 }
+                    });
+
+                    y = doc.lastAutoTable.finalY + 10;
+                }
+
+                const totalVendas = vendas.reduce((sum, v) => sum + parseFloat(v.valor), 0);
+                const totalRetiradas = retiradas.reduce((sum, r) => sum + parseFloat(r.valor), 0);
+
+                doc.setFontSize(14);
+                doc.setFont(undefined, 'bold');
+                doc.text('Resumo', 20, y);
+                y += 10;
+
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'normal');
+                doc.text(`Saldo Inicial:`, 20, y);
+                doc.text(utils.formatarMoeda(caixa.saldo_inicial), 170, y, { align: 'right' });
+                y += 7;
+
+                doc.text(`Total Vendas:`, 20, y);
+                doc.text(utils.formatarMoeda(totalVendas), 170, y, { align: 'right' });
+                y += 7;
+
+                doc.text(`Total Retiradas:`, 20, y);
+                doc.text(utils.formatarMoeda(totalRetiradas), 170, y, { align: 'right' });
+                y += 7;
+
+                doc.setFont(undefined, 'bold');
+                doc.setFontSize(12);
+                doc.text(`Saldo Final:`, 20, y);
+                doc.text(utils.formatarMoeda(caixa.saldo_final), 170, y, { align: 'right' });
+
+                const nomeArquivo = `caixa_${caixa.data}_${caixa.periodo}.pdf`;
+                doc.save(nomeArquivo);
+
+            } catch (error) {
+                console.error('Erro ao gerar PDF:', error);
+                alert('Erro ao gerar PDF: ' + error.message);
+            }
+        }
+    </script>
+    <!-- Modal Avatar -->
+    <div id="modalAvatar" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Alterar Avatar</h3>
+            <input type="file" id="avatarInput" accept="image/jpeg,image/png" class="mb-4 w-full" />
+            <div class="flex gap-3">
+                <button onclick="salvarAvatar()" class="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-primary/90">Salvar</button>
+                <button onclick="document.getElementById('modalAvatar').classList.add('hidden')" class="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white py-2 rounded-lg hover:bg-gray-300">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

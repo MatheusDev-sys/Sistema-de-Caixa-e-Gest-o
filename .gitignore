@@ -1,0 +1,30 @@
+# Arquivos temporários
+*.tmp
+*.log
+*.bak
+*-backup-*
+*-broken-*
+
+# Backups do PowerShell
+*.ps1
+
+# Node modules (se houver)
+node_modules/
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Arquivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Arquivos de teste
+test/
+tests/
+
+# Documentação temporária
+*.md.backup

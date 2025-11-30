@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html class="light" lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Login - Mande Flores</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/images/logo.png">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style type="text/tailwindcss">
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.5);
+            -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .dark .glass-effect {
+            background: rgba(28, 17, 33, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .floral-corner {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            opacity: 0.2;
+            pointer-events: none;
+        }
+        .dark .floral-corner {
+            opacity: 0.1;
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#b447eb",
+                        "background-light": "#f7f6f8",
+                        "background-dark": "#1c1121",
+                    },
+                    fontFamily: {
+                        "display": ["Poppins", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="font-display">
+    <div
+        class="relative flex h-screen w-full flex-col items-center justify-center bg-background-light dark:bg-background-dark overflow-hidden p-4">
+        <!-- Background Image -->
+        <div class="absolute inset-0 z-0">
+            <img class="h-full w-full object-cover opacity-50 dark:opacity-30" alt="Fundo floral desfocado"
+                src="https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=1920&q=80" />
+            <div
+                class="absolute inset-0 bg-gradient-to-t from-background-light via-background-light/50 to-transparent dark:from-background-dark dark:via-background-dark/50">
+            </div>
+        </div>
+
+        <!-- Floral Corners -->
+        <svg class="floral-corner top-4 left-4" fill="none" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50 0C50 0 50 25 25 25C0 25 0 50 0 50" stroke="#B447EB" stroke-width="1.5"></path>
+            <path d="M50 0C50 0 25 0 25 25C25 50 0 50 0 50" stroke="#B447EB" stroke-width="1.5"
+                transform="rotate(90 25 25)"></path>
+        </svg>
+        <svg class="floral-corner bottom-4 right-4" fill="none" style="transform: rotate(180deg);" viewBox="0 0 100 100"
+            xmlns="http://www.w3.org/2000/svg">
+            <path d="M50 0C50 0 50 25 25 25C0 25 0 50 0 50" stroke="#B447EB" stroke-width="1.5"></path>
+            <path d="M50 0C50 0 25 0 25 25C25 50 0 50 0 50" stroke="#B447EB" stroke-width="1.5"
+                transform="rotate(90 25 25)"></path>
+        </svg>
+
+        <!-- Login Card -->
+        <div
+            class="relative z-10 w-full max-w-md rounded-xl glass-effect shadow-2xl shadow-primary/10 dark:shadow-primary/5">
+            <div class="flex flex-col p-8 md:p-12">
+                <!-- Header -->
+                <div class="text-center">
+                    <div class="flex flex-col items-center justify-center space-y-2">
+                        <img alt="Logo Mande Flores" class="h-16 w-auto" src="assets/images/logo.png"
+                            onerror="this.style.display='none'" />
+                        <span class="text-sm tracking-widest text-gray-500 dark:text-gray-400">FLORA SHOP</span>
+                    </div>
+                    <p class="mt-4 text-base text-gray-700 dark:text-gray-300">Bem-vindo(a) de volta!</p>
+                </div>
+
+                <!-- Form -->
+                <form id="loginForm" class="mt-8">
+                    <div class="space-y-6">
+                        <!-- Email -->
+                        <label class="flex flex-col w-full">
+                            <p class="text-base font-medium text-gray-800 dark:text-gray-200 pb-2">Email</p>
+                            <div class="relative flex items-center">
+                                <span
+                                    class="material-symbols-outlined absolute left-4 text-gray-400 dark:text-gray-500">mail</span>
+                                <input type="email" id="email"
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-black/20 h-14 placeholder:text-gray-500 dark:placeholder:text-gray-400 pl-12 pr-4 text-base font-normal"
+                                    placeholder="Seu e-mail" required autocomplete="email" />
+                            </div>
+                        </label>
+
+                        <!-- Password -->
+                        <label class="flex flex-col w-full">
+                            <p class="text-base font-medium text-gray-800 dark:text-gray-200 pb-2">Senha</p>
+                            <div class="relative flex w-full flex-1 items-stretch">
+                                <span
+                                    class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">lock</span>
+                                <input type="password" id="password"
+                                    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-black/20 h-14 placeholder:text-gray-500 dark:placeholder:text-gray-400 pl-12 pr-12 text-base font-normal"
+                                    placeholder="Sua senha" required autocomplete="current-password" />
+                                <button type="button" id="togglePassword"
+                                    class="absolute right-0 top-0 h-full px-4 text-gray-400 dark:text-gray-500 hover:text-primary dark:hover:text-primary">
+                                    <span class="material-symbols-outlined" id="eyeIcon">visibility</span>
+                                </button>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div id="errorMessage"
+                        class="mt-4 hidden flex items-center gap-2 rounded-lg bg-red-500/10 dark:bg-red-500/20 p-3 text-sm text-red-600 dark:text-red-400">
+                        <span class="material-symbols-outlined text-base">error</span>
+                        <p id="errorText">E-mail ou senha inválidos. Tente novamente.</p>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="mt-8">
+                        <button type="submit" id="loginBtn"
+                            class="flex w-full items-center justify-center rounded-lg bg-primary h-14 px-6 text-base font-medium text-white transition-all duration-300 hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 dark:focus:ring-offset-background-dark shadow-lg shadow-primary/30">
+                            <span id="loginBtnText">Entrar</span>
+                            <svg id="loginBtnSpinner" class="hidden animate-spin h-5 w-5 text-white"
+                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script>
+        // Toggle Password
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+            eyeIcon.textContent = type === 'password' ? 'visibility' : 'visibility_off';
+        });
+
+        // Show/Hide Error
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            errorText.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').classList.add('hidden');
+        }
+
+        // Login Form
+        const loginForm = document.getElementById('loginForm');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginBtnText = document.getElementById('loginBtnText');
+        const loginBtnSpinner = document.getElementById('loginBtnSpinner');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideError();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Show loading
+            loginBtn.disabled = true;
+            loginBtnText.classList.add('hidden');
+            loginBtnSpinner.classList.remove('hidden');
+
+            try {
+                // Login com Supabase
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) throw error;
+
+                // Buscar dados do usuário
+                const { data: userData, error: userError } = await supabase
+                    .from('usuarios')
+                    .select('cargo, nome')
+                    .eq('id', data.user.id)
+                    .single();
+
+                if (userError) throw userError;
+
+                // Salvar dados na sessão
+                sessionStorage.setItem('userCargo', userData.cargo);
+                sessionStorage.setItem('userName', userData.nome);
+
+                // Redirecionar baseado no cargo
+                switch (userData.cargo) {
+                    case 'admin':
+                        window.location.href = 'admin.html';
+                        break;
+                    case 'gerente':
+                        window.location.href = 'dashboard.html';
+                        break;
+                    case 'funcionario':
+                        window.location.href = 'caixa.html';
+                        break;
+                    default:
+                        throw new Error('Cargo não reconhecido');
+                }
+
+            } catch (error) {
+                console.error('Erro no login:', error);
+                showError(error.message === 'Invalid login credentials'
+                    ? 'E-mail ou senha inválidos. Tente novamente.'
+                    : error.message);
+
+                // Reset button
+                loginBtn.disabled = false;
+                loginBtnText.classList.remove('hidden');
+                loginBtnSpinner.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+
+</html>
