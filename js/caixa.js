@@ -542,6 +542,9 @@ async function fecharCaixa() {
 
 // Gerar PDF
 async function gerarPDF() {
+    console.log('🔥 GERANDO PDF - VERSÃO 2.0 COM LAYOUT MELHORADO! 🔥');
+    console.log('Vendas:', vendas.length, 'Retiradas:', retiradas.length);
+
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
 
@@ -601,80 +604,208 @@ async function gerarPDF() {
         y = doc.lastAutoTable.finalY + 10;
     }
 
-    // Tabela de retiradas
-    if (retiradas.length > 0) {
-        doc.setFontSize(14);
-        doc.setFont(undefined, 'bold');
-        doc.text('Retiradas', 20, y);
-        y += 7;
-
-        const retiradasData = retiradas.map(r => [
-            r.tipo === 'passagem' ? 'Passagem' : 'Outra',
-            r.descricao,
-            utils.formatarMoeda(r.valor)
-        ]);
-
-        doc.autoTable({
-            startY: y,
-            head: [['Tipo', 'Descrição', 'Valor']],
-            body: retiradasData,
-            theme: 'striped',
-            headStyles: { fillColor: rosaMedio },
-            margin: { left: 20, right: 20 }
-        });
-
-        y = doc.lastAutoTable.finalY + 10;
-    }
-
     // Resumo final
     const totalVendas = vendas.reduce((sum, v) => sum + parseFloat(v.valor), 0);
     const totalRetiradas = retiradas.reduce((sum, r) => sum + parseFloat(r.valor), 0);
     const saldoFinal = parseFloat(caixaAtual.saldo_inicial) + totalVendas - totalRetiradas;
 
     // Totais por forma de pagamento
-    const totaisPagamento = {};
+    const totaisPagamento = {
+        'Dinheiro': 0,
+        'PIX WhatsApp': 0,
+        'PIX Maquininha': 0,
+        'Débito': 0,
+        'Crédito': 0,
+        'Link Pagamento': 0
+    };
+
     vendas.forEach(v => {
         const forma = formatarPagamento(v.pagamento);
         totaisPagamento[forma] = (totaisPagamento[forma] || 0) + parseFloat(v.valor);
     });
 
+    // Verificar se precisa de nova página para o resumo
+    const alturaResumo = 120; // Estimativa generosa para todo o resumo
+
+    if (y + alturaResumo > 280) {
+        doc.addPage();
+        y = 20;
+    }
+
+    // ========== RESUMO FINANCEIRO ==========
+    doc.setFillColor(240, 240, 240);
+    doc.rect(15, y - 5, 180, 12, 'F');
+
     doc.setFontSize(14);
     doc.setFont(undefined, 'bold');
-    doc.text('Resumo', 20, y);
-    y += 10;
+    doc.setTextColor(0, 0, 0);
+    doc.text('RESUMO FINANCEIRO', 105, y + 3, { align: 'center' });
+    y += 15;
 
+    // Saldo Inicial
     doc.setFontSize(11);
     doc.setFont(undefined, 'normal');
-    doc.text(`Saldo Inicial:`, 20, y);
-    doc.text(utils.formatarMoeda(caixaAtual.saldo_inicial), 170, y, { align: 'right' });
-    y += 7;
+    doc.setTextColor(80, 80, 80);
+    doc.text('Saldo Inicial:', 20, y);
+    doc.setFont(undefined, 'bold');
+    doc.setTextColor(0, 0, 0);
+    doc.text(utils.formatarMoeda(caixaAtual.saldo_inicial), 190, y, { align: 'right' });
+    y += 8;
 
-    doc.text(`Total Vendas:`, 20, y);
-    doc.text(utils.formatarMoeda(totalVendas), 170, y, { align: 'right' });
-    y += 7;
+    // Total Vendas
+    doc.setFont(undefined, 'normal');
+    doc.setTextColor(80, 80, 80);
+    doc.text('Total em Vendas:', 20, y);
+    doc.setFont(undefined, 'bold');
+    doc.setTextColor(0, 150, 0);
+    doc.text(utils.formatarMoeda(totalVendas), 190, y, { align: 'right' });
+    y += 8;
 
-    doc.text(`Total Retiradas:`, 20, y);
-    doc.text(utils.formatarMoeda(totalRetiradas), 170, y, { align: 'right' });
-    y += 7;
+    // Total Retiradas
+    if (totalRetiradas > 0) {
+        doc.setFont(undefined, 'normal');
+        doc.setTextColor(80, 80, 80);
+        doc.text('Total em Retiradas:', 20, y);
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(200, 0, 0);
+        doc.text('- ' + utils.formatarMoeda(totalRetiradas), 190, y, { align: 'right' });
+        y += 8;
+    }
 
+    // Linha separadora
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, y, 190, y);
+    y += 6;
+
+    // Saldo Final (destaque)
+    doc.setFillColor(180, 71, 235);
+    doc.roundedRect(15, y - 3, 180, 10, 2, 2, 'F');
+
+    doc.setFont(undefined, 'bold');
+    doc.setFontSize(13);
+    doc.setTextColor(255, 255, 255);
+    doc.text('SALDO FINAL:', 20, y + 4);
+    doc.text(utils.formatarMoeda(saldoFinal), 190, y + 4, { align: 'right' });
+    y += 18;
+
+    // ========== DETALHAMENTO POR FORMA DE PAGAMENTO ==========
+    doc.setFillColor(240, 240, 240);
+    doc.rect(15, y - 5, 180, 12, 'F');
+
+    doc.setFontSize(14);
+    doc.setFont(undefined, 'bold');
+    doc.setTextColor(0, 0, 0);
+    doc.text('FORMAS DE PAGAMENTO', 105, y + 3, { align: 'center' });
+    y += 15;
+
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.setTextColor(80, 80, 80);
+
+    // Listar todas as formas de pagamento
+    Object.entries(totaisPagamento).forEach(([forma, valor]) => {
+        if (valor > 0) {
+            doc.text(`${forma}:`, 25, y);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(0, 0, 0);
+            doc.text(utils.formatarMoeda(valor), 190, y, { align: 'right' });
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(80, 80, 80);
+            y += 6;
+        }
+    });
+
+    // ========== CONFERÊNCIA DE DINHEIRO ==========
+    y += 5;
+
+    // Verificar se precisa de nova página
+    if (y + 30 > 280) {
+        doc.addPage();
+        y = 20;
+    }
+
+    const dinheiroEsperado = parseFloat(caixaAtual.saldo_inicial) + totaisPagamento['Dinheiro'] - totalRetiradas;
+
+    doc.setFillColor(255, 243, 205); // Amarelo claro
+    doc.rect(15, y - 5, 180, 12, 'F');
+
+    doc.setFontSize(14);
+    doc.setFont(undefined, 'bold');
+    doc.setTextColor(0, 0, 0);
+    doc.text('CONFERÊNCIA DE DINHEIRO', 105, y + 3, { align: 'center' });
+    y += 15;
+
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.setTextColor(80, 80, 80);
+    doc.text('Saldo Inicial (dinheiro):', 25, y);
+    doc.setFont(undefined, 'bold');
+    doc.setTextColor(0, 0, 0);
+    doc.text(utils.formatarMoeda(caixaAtual.saldo_inicial), 190, y, { align: 'right' });
+    y += 6;
+
+    doc.setFont(undefined, 'normal');
+    doc.setTextColor(80, 80, 80);
+    doc.text('+ Vendas em Dinheiro:', 25, y);
+    doc.setFont(undefined, 'bold');
+    doc.setTextColor(0, 150, 0);
+    doc.text(utils.formatarMoeda(totaisPagamento['Dinheiro']), 190, y, { align: 'right' });
+    y += 6;
+
+    if (totalRetiradas > 0) {
+        doc.setFont(undefined, 'normal');
+        doc.setTextColor(80, 80, 80);
+        doc.text('- Retiradas:', 25, y);
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(200, 0, 0);
+        doc.text(utils.formatarMoeda(totalRetiradas), 190, y, { align: 'right' });
+        y += 6;
+    }
+
+    doc.setDrawColor(200, 200, 200);
+    doc.line(25, y, 190, y);
+    y += 4;
+
+    doc.setFillColor(255, 193, 7); // Amarelo/dourado
+    doc.roundedRect(15, y - 3, 180, 10, 2, 2, 'F');
     doc.setFont(undefined, 'bold');
     doc.setFontSize(12);
-    doc.text(`Saldo Final:`, 20, y);
-    doc.text(utils.formatarMoeda(saldoFinal), 170, y, { align: 'right' });
-    y += 10;
+    doc.setTextColor(0, 0, 0);
+    doc.text('DINHEIRO ESPERADO NO CAIXA:', 25, y + 4);
+    doc.text(utils.formatarMoeda(dinheiroEsperado), 190, y + 4, { align: 'right' });
+    y += 15;
 
-    // Totais por pagamento
-    doc.setFontSize(11);
-    doc.setFont(undefined, 'bold');
-    doc.text('Por Forma de Pagamento:', 20, y);
-    y += 7;
+    // ========== RETIRADAS (se houver) ==========
+    if (retiradas.length > 0) {
+        y += 5;
 
-    doc.setFont(undefined, 'normal');
-    Object.entries(totaisPagamento).forEach(([forma, valor]) => {
-        doc.text(`${forma}:`, 25, y);
-        doc.text(utils.formatarMoeda(valor), 170, y, { align: 'right' });
-        y += 6;
-    });
+        // Verificar se precisa de nova página
+        if (y + 40 > 280) {
+            doc.addPage();
+            y = 20;
+        }
+
+        doc.setFillColor(240, 240, 240);
+        doc.rect(15, y - 5, 180, 12, 'F');
+
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(0, 0, 0);
+        doc.text('RETIRADAS DO CAIXA', 105, y + 3, { align: 'center' });
+        y += 15;
+
+        doc.setFontSize(10);
+        retiradas.forEach(r => {
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(80, 80, 80);
+            const tipo = r.tipo === 'passagem' ? 'Passagem' : 'Outra';
+            doc.text(`${tipo}: ${r.descricao}`, 25, y);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(200, 0, 0);
+            doc.text(utils.formatarMoeda(r.valor), 190, y, { align: 'right' });
+            y += 6;
+        });
+    }
 
     // Salvar PDF
     const nomeArquivo = `caixa_${caixaAtual.data}_${caixaAtual.periodo}.pdf`;
