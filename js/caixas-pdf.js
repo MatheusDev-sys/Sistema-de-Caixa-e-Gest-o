@@ -25,6 +25,22 @@ async function gerarPDFCaixa(caixaId) {
 
         if (retiradasError) throw retiradasError;
 
+        // Buscar adições manuais (pode não existir a tabela ainda)
+        let adicoes = [];
+        try {
+            const { data: adicoesData, error: adicoesError } = await supabase
+                .from('adicoes_manuais')
+                .select('*')
+                .eq('caixa_id', caixaId)
+                .order('criado_em');
+
+            if (!adicoesError) {
+                adicoes = adicoesData || [];
+            }
+        } catch (e) {
+            console.warn('Tabela adicoes_manuais não encontrada:', e);
+        }
+
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
 
@@ -63,7 +79,7 @@ async function gerarPDFCaixa(caixaId) {
 
             const vendasData = vendas.map(v => [
                 v.quantidade + 'x',
-                v.descricao,
+                v.descricao + (v.observacao ? `\n${v.observacao}` : ''),
                 v.pagamento,
                 utils.formatarMoeda(v.valor)
             ]);
@@ -74,7 +90,11 @@ async function gerarPDFCaixa(caixaId) {
                 body: vendasData,
                 theme: 'striped',
                 headStyles: { fillColor: rosaMedio },
-                margin: { left: 20, right: 20 }
+                margin: { left: 20, right: 20 },
+                styles: { cellPadding: 3, fontSize: 9 },
+                columnStyles: {
+                    1: { cellWidth: 70 } // Descrição com mais espaço
+                }
             });
 
             y = doc.lastAutoTable.finalY + 10;
@@ -82,6 +102,7 @@ async function gerarPDFCaixa(caixaId) {
 
         const totalVendas = vendas.reduce((sum, v) => sum + parseFloat(v.valor), 0);
         const totalRetiradas = retiradas.reduce((sum, r) => sum + parseFloat(r.valor), 0);
+        const totalAdicoes = adicoes.reduce((sum, a) => sum + parseFloat(a.valor), 0);
 
         const totaisPagamento = {
             'Dinheiro': 0,
@@ -148,6 +169,16 @@ async function gerarPDFCaixa(caixaId) {
             y += 8;
         }
 
+        if (totalAdicoes > 0) {
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(80, 80, 80);
+            doc.text('Adições Manuais:', 20, y);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(0, 150, 0);
+            doc.text('+ ' + utils.formatarMoeda(totalAdicoes), 190, y, { align: 'right' });
+            y += 8;
+        }
+
         doc.setDrawColor(200, 200, 200);
         doc.line(20, y, 190, y);
         y += 6;
@@ -193,7 +224,7 @@ async function gerarPDFCaixa(caixaId) {
             y = 20;
         }
 
-        const dinheiroEsperado = parseFloat(caixa.saldo_inicial) + totaisPagamento['Dinheiro'] - totalRetiradas;
+        const dinheiroEsperado = parseFloat(caixa.saldo_inicial) + totaisPagamento['Dinheiro'] + totalAdicoes - totalRetiradas;
 
         doc.setFillColor(255, 243, 205);
         doc.rect(15, y - 5, 180, 12, 'F');
@@ -219,6 +250,16 @@ async function gerarPDFCaixa(caixaId) {
         doc.setTextColor(0, 150, 0);
         doc.text(utils.formatarMoeda(totaisPagamento['Dinheiro']), 190, y, { align: 'right' });
         y += 6;
+
+        if (totalAdicoes > 0) {
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(80, 80, 80);
+            doc.text('+ Adições Manuais:', 25, y);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(0, 150, 0);
+            doc.text(utils.formatarMoeda(totalAdicoes), 190, y, { align: 'right' });
+            y += 6;
+        }
 
         if (totalRetiradas > 0) {
             doc.setFont(undefined, 'normal');
@@ -267,6 +308,33 @@ async function gerarPDFCaixa(caixaId) {
                 doc.setFont(undefined, 'bold');
                 doc.setTextColor(200, 0, 0);
                 doc.text(utils.formatarMoeda(r.valor), 190, y, { align: 'right' });
+                y += 6;
+            });
+        }
+
+        // ADIÇÕES MANUAIS
+        if (adicoes.length > 0) {
+            y += 5;
+            if (y + 40 > 280) {
+                doc.addPage();
+                y = 20;
+            }
+            doc.setFillColor(240, 240, 240);
+            doc.rect(15, y - 5, 180, 12, 'F');
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(0, 0, 0);
+            doc.text('ADIÇÕES MANUAIS DE SALDO', 105, y + 3, { align: 'center' });
+            y += 15;
+
+            doc.setFontSize(10);
+            adicoes.forEach(a => {
+                doc.setFont(undefined, 'normal');
+                doc.setTextColor(80, 80, 80);
+                doc.text(a.descricao, 25, y);
+                doc.setFont(undefined, 'bold');
+                doc.setTextColor(0, 150, 0);
+                doc.text(utils.formatarMoeda(a.valor), 190, y, { align: 'right' });
                 y += 6;
             });
         }

@@ -5,6 +5,7 @@
 let caixaAtual = null;
 let vendas = [];
 let retiradas = [];
+let adicoes = [];
 
 // Inicializar página
 document.addEventListener('DOMContentLoaded', async () => {
@@ -99,6 +100,12 @@ function configurarEventListeners() {
     document.getElementById('vendaForm').addEventListener('submit', registrarVenda);
     document.getElementById('retiradaForm').addEventListener('submit', registrarRetirada);
     document.getElementById('fecharCaixaBtn').addEventListener('click', fecharCaixa);
+
+    // Formulário de adição (se existir)
+    const adicaoForm = document.getElementById('adicaoForm');
+    if (adicaoForm) {
+        adicaoForm.addEventListener('submit', registrarAdicao);
+    }
 }
 
 // Verificar feriado via BrasilAPI
@@ -279,9 +286,10 @@ async function carregarCaixa() {
     document.getElementById('caixaPeriodo').textContent = caixaAtual.periodo === 'manha' ? 'Manhã' : 'Noite';
     document.getElementById('caixaSaldoInicial').textContent = utils.formatarMoeda(caixaAtual.saldo_inicial);
 
-    // Carregar vendas e retiradas
+    // Carregar vendas, retiradas e adições
     await carregarVendas();
     await carregarRetiradas();
+    await carregarAdicoes();
     await atualizarTotais();
 }
 
@@ -429,8 +437,9 @@ async function registrarRetirada(e) {
 
         if (error) throw error;
 
-        // Limpar formulário
+        // Limpar formulário e fechar modal
         document.getElementById('retiradaForm').reset();
+        document.getElementById('modalRetirada').classList.add('hidden');
         const senhaGroup = document.getElementById('senhaMestraGroup');
         if (senhaGroup) senhaGroup.style.display = 'none';
 
@@ -486,10 +495,123 @@ async function carregarRetiradas() {
     }
 }
 
+// Carregar adições manuais
+async function carregarAdicoes() {
+    try {
+        const { data, error } = await supabase
+            .from('adicoes_manuais')
+            .select('*')
+            .eq('caixa_id', caixaAtual.id)
+            .order('criado_em', { ascending: false });
+
+        if (error) {
+            // Se a tabela não existe ainda, apenas inicializar array vazio
+            if (error.code === 'PGRST116' || error.message.includes('does not exist')) {
+                console.warn('Tabela adicoes_manuais ainda não foi criada. Execute o script 10_adicoes_manuais.sql');
+                adicoes = [];
+                return;
+            }
+            throw error;
+        }
+
+        adicoes = data || [];
+
+    } catch (error) {
+        console.error('Erro ao carregar adições:', error);
+        adicoes = []; // Garantir que adicoes seja sempre um array
+    }
+}
+
+// Registrar adição manual
+async function registrarAdicao(e) {
+    e.preventDefault();
+    utils.mostrarLoading();
+
+    try {
+        const usuario = await auth.obterUsuarioAtual();
+        const descricao = document.getElementById('descricaoAdicao').value;
+        const valor = parseFloat(document.getElementById('valorAdicao').value);
+        const senha = document.getElementById('senhaMestraAdicao').value;
+
+        // Validar senha mestra (sempre obrigatória para adições)
+        const validado = await validarSenhaGerente(senha);
+        if (!validado) {
+            throw new Error('Senha mestra inválida.');
+        }
+
+        const { data, error } = await supabase
+            .from('adicoes_manuais')
+            .insert({
+                caixa_id: caixaAtual.id,
+                descricao: descricao,
+                valor: valor,
+                autorizado_por: usuario.id
+            })
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        // Limpar formulário e fechar modal
+        document.getElementById('adicaoForm').reset();
+        document.getElementById('modalAdicao').classList.add('hidden');
+
+        // Recarregar adições
+        await carregarAdicoes();
+        await atualizarTotais();
+
+        utils.mostrarNotificacao('Saldo adicionado com sucesso!', 'success');
+
+    } catch (error) {
+        console.error('Erro ao registrar adição:', error);
+        if (error.code === 'PGRST116' || error.message.includes('does not exist')) {
+            utils.mostrarNotificacao('Tabela de adições não encontrada. Execute o script SQL 10_adicoes_manuais.sql no Supabase.', 'error');
+        } else {
+            utils.mostrarNotificacao(error.message, 'error');
+        }
+    } finally {
+        utils.esconderLoading();
+    }
+}
+
+// Validar senha mestra
+async function validarSenhaGerente(senha) {
+    try {
+        // Chamar função do banco que valida a senha mestra
+        const { data, error } = await supabase.rpc('validar_senha_mestra', {
+            senha_informada: senha
+        });
+
+        if (error) {
+            console.error('Erro ao validar senha:', error);
+            return false;
+        }
+
+        return data === true;
+    } catch (error) {
+        console.error('Erro ao validar senha:', error);
+        return false;
+    }
+}
+
 // Atualizar totais
 async function atualizarTotais() {
     const totalVendas = vendas.reduce((sum, v) => sum + parseFloat(v.valor), 0);
     document.getElementById('caixaTotalVendas').textContent = utils.formatarMoeda(totalVendas);
+
+    // Calcular saldo atual: saldo inicial + vendas em dinheiro + adições - retiradas
+    const vendasDinheiro = vendas
+        .filter(v => v.pagamento === 'dinheiro')
+        .reduce((sum, v) => sum + parseFloat(v.valor), 0);
+    const totalRetiradas = retiradas.reduce((sum, r) => sum + parseFloat(r.valor), 0);
+    const totalAdicoes = adicoes.reduce((sum, a) => sum + parseFloat(a.valor), 0);
+    const saldoAtual = parseFloat(caixaAtual.saldo_inicial) + vendasDinheiro + totalAdicoes - totalRetiradas;
+
+    // Atualizar display do saldo atual (se o elemento existir)
+    const saldoAtualElement = document.getElementById('caixaSaldoAtual');
+    if (saldoAtualElement) {
+        saldoAtualElement.textContent = utils.formatarMoeda(saldoAtual);
+    }
 }
 
 // Fechar caixa e gerar PDF
@@ -506,7 +628,8 @@ async function fecharCaixa() {
         // Calcular totais
         const totalVendas = vendas.reduce((sum, v) => sum + parseFloat(v.valor), 0);
         const totalRetiradas = retiradas.reduce((sum, r) => sum + parseFloat(r.valor), 0);
-        const saldoFinal = parseFloat(caixaAtual.saldo_inicial) + totalVendas - totalRetiradas;
+        const totalAdicoes = adicoes.reduce((sum, a) => sum + parseFloat(a.valor), 0);
+        const saldoFinal = parseFloat(caixaAtual.saldo_inicial) + totalVendas + totalAdicoes - totalRetiradas;
 
         // Atualizar caixa
         const { error } = await supabase
@@ -587,7 +710,7 @@ async function gerarPDF() {
 
         const vendasData = vendas.map(v => [
             `${v.quantidade}x`,
-            v.descricao,
+            v.descricao + (v.observacao ? `\n${v.observacao}` : ''),
             formatarPagamento(v.pagamento),
             utils.formatarMoeda(v.valor)
         ]);
@@ -598,7 +721,11 @@ async function gerarPDF() {
             body: vendasData,
             theme: 'striped',
             headStyles: { fillColor: rosaMedio },
-            margin: { left: 20, right: 20 }
+            margin: { left: 20, right: 20 },
+            styles: { cellPadding: 3, fontSize: 9 },
+            columnStyles: {
+                1: { cellWidth: 70 } // Descrição com mais espaço
+            }
         });
 
         y = doc.lastAutoTable.finalY + 10;
@@ -607,7 +734,8 @@ async function gerarPDF() {
     // Resumo final
     const totalVendas = vendas.reduce((sum, v) => sum + parseFloat(v.valor), 0);
     const totalRetiradas = retiradas.reduce((sum, r) => sum + parseFloat(r.valor), 0);
-    const saldoFinal = parseFloat(caixaAtual.saldo_inicial) + totalVendas - totalRetiradas;
+    const totalAdicoes = adicoes.reduce((sum, a) => sum + parseFloat(a.valor), 0);
+    const saldoFinal = parseFloat(caixaAtual.saldo_inicial) + totalVendas + totalAdicoes - totalRetiradas;
 
     // Totais por forma de pagamento
     const totaisPagamento = {
@@ -660,6 +788,17 @@ async function gerarPDF() {
     doc.setTextColor(0, 150, 0);
     doc.text(utils.formatarMoeda(totalVendas), 190, y, { align: 'right' });
     y += 8;
+
+    // Total Adições
+    if (totalAdicoes > 0) {
+        doc.setFont(undefined, 'normal');
+        doc.setTextColor(80, 80, 80);
+        doc.text('Adições Manuais:', 20, y);
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(0, 150, 0);
+        doc.text('+ ' + utils.formatarMoeda(totalAdicoes), 190, y, { align: 'right' });
+        y += 8;
+    }
 
     // Total Retiradas
     if (totalRetiradas > 0) {
@@ -724,7 +863,7 @@ async function gerarPDF() {
         y = 20;
     }
 
-    const dinheiroEsperado = parseFloat(caixaAtual.saldo_inicial) + totaisPagamento['Dinheiro'] - totalRetiradas;
+    const dinheiroEsperado = parseFloat(caixaAtual.saldo_inicial) + totaisPagamento['Dinheiro'] + totalAdicoes - totalRetiradas;
 
     doc.setFillColor(255, 243, 205); // Amarelo claro
     doc.rect(15, y - 5, 180, 12, 'F');
@@ -751,6 +890,16 @@ async function gerarPDF() {
     doc.setTextColor(0, 150, 0);
     doc.text(utils.formatarMoeda(totaisPagamento['Dinheiro']), 190, y, { align: 'right' });
     y += 6;
+
+    if (totalAdicoes > 0) {
+        doc.setFont(undefined, 'normal');
+        doc.setTextColor(80, 80, 80);
+        doc.text('+ Adições Manuais:', 25, y);
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(0, 150, 0);
+        doc.text(utils.formatarMoeda(totalAdicoes), 190, y, { align: 'right' });
+        y += 6;
+    }
 
     if (totalRetiradas > 0) {
         doc.setFont(undefined, 'normal');
@@ -803,6 +952,37 @@ async function gerarPDF() {
             doc.setFont(undefined, 'bold');
             doc.setTextColor(200, 0, 0);
             doc.text(utils.formatarMoeda(r.valor), 190, y, { align: 'right' });
+            y += 6;
+        });
+    }
+
+    // ========== ADIÇÕES MANUAIS (se houver) ==========
+    if (adicoes.length > 0) {
+        y += 5;
+
+        // Verificar se precisa de nova página
+        if (y + 40 > 280) {
+            doc.addPage();
+            y = 20;
+        }
+
+        doc.setFillColor(240, 240, 240);
+        doc.rect(15, y - 5, 180, 12, 'F');
+
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(0, 0, 0);
+        doc.text('ADIÇÕES MANUAIS DE SALDO', 105, y + 3, { align: 'center' });
+        y += 15;
+
+        doc.setFontSize(10);
+        adicoes.forEach(a => {
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(80, 80, 80);
+            doc.text(a.descricao, 25, y);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(0, 150, 0);
+            doc.text(utils.formatarMoeda(a.valor), 190, y, { align: 'right' });
             y += 6;
         });
     }
