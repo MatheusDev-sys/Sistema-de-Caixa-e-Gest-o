@@ -73,6 +73,11 @@ function formatarMoeda(valor) {
 
 // Formatar data brasileira
 function formatarData(data) {
+    // Se a data está no formato YYYY-MM-DD (sem horário), adicionar T00:00:00 para forçar interpretação local
+    // Isso evita problemas de timezone que fazem a data aparecer como dia anterior
+    if (typeof data === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(data)) {
+        data = data + 'T00:00:00';
+    }
     return new Intl.DateTimeFormat('pt-BR').format(new Date(data));
 }
 

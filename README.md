@@ -1,244 +1,306 @@
 # 🌸 Mande Flores - Sistema de Gestão de Caixa
 
-Sistema completo de gestão de caixa e vendas para floricultura, desenvolvido para rodar no GitHub Pages com backend Supabase.
+> Sistema completo de ponto de venda (PDV) e gestão de caixa desenvolvido especificamente para floricultura, com controle financeiro em tempo real, relatórios em PDF e interface moderna.
 
-![Status](https://img.shields.io/badge/status-ativo-success)
-![Versão](https://img.shields.io/badge/vers%C3%A3o-1.0.0-blue)
-![Licença](https://img.shields.io/badge/licen%C3%A7a-MIT-green)
+![Versão](https://img.shields.io/badge/versão-5.0-blue)
+![Status](https://img.shields.io/badge/status-produção-success)
+![Licença](https://img.shields.io/badge/licença-proprietária-red)
 
 ## 📋 Índice
 
-- [Sobre o Projeto](#sobre-o-projeto)
-- [Funcionalidades](#funcionalidades)
-- [Tecnologias](#tecnologias)
-- [Instalação](#instalação)
-- [Configuração](#configuração)
-- [Uso](#uso)
-- [Estrutura do Projeto](#estrutura-do-projeto)
-- [Documentação](#documentação)
+- [Visão Geral](#-visão-geral)
+- [Funcionalidades](#-funcionalidades)
+- [Tecnologias](#-tecnologias)
+- [Requisitos](#-requisitos)
+- [Instalação](#-instalação)
+- [Uso](#-uso)
+- [Documentação](#-documentação)
+- [Suporte](#-suporte)
+- [Licença](#-licença)
 
-## 🎯 Sobre o Projeto
+## 🎯 Visão Geral
 
-O **Mande Flores** é um sistema web moderno e responsivo para controle de caixa, vendas, fechamento diário e gestão de feriados. Desenvolvido especificamente para uso interno de floricultura, oferece:
+O **Mande Flores** é um sistema web completo de gestão de caixa desenvolvido para floriculturias e pequenos comércios. O sistema oferece controle total sobre vendas, movimentações financeiras e geração de relatórios detalhados em PDF.
 
-- ✅ Interface moderna com design floral
-- ✅ Controle de permissões por cargo (Admin, Gerente, Funcionário)
-- ✅ Gestão automática de feriados via API BrasilAPI
-- ✅ Geração de PDFs estilizados para fechamento
-- ✅ Dashboard com gráficos interativos
-- ✅ 100% responsivo (desktop e mobile)
-- ✅ Segurança com RLS (Row Level Security)
+### Principais Diferenciais
 
-## ⚡ Funcionalidades
+- ✅ **Interface Moderna**: Design responsivo com tema claro/escuro
+- ✅ **Tempo Real**: Atualizações instantâneas de saldo e totais
+- ✅ **PDFs Profissionais**: Relatórios detalhados com layout personalizado
+- ✅ **Controle Completo**: Vendas, retiradas, adições e fechamento de caixa
+- ✅ **Multi-usuário**: Sistema de permissões (Admin, Gerente, Operador)
+- ✅ **Seguro**: Autenticação robusta e validação de senha mestra
+- ✅ **Histórico**: Acesso a todos os caixas anteriores
+- ✅ **Auditoria**: Registro completo de todas as operações
 
-### Para Funcionários
-- Abertura e fechamento de caixa
-- Registro de vendas com múltiplas formas de pagamento
-- Registro de retiradas (passagem)
-- Geração de PDF do fechamento diário
-- Detecção automática de feriados e domingos
+## 🚀 Funcionalidades
 
-### Para Gerentes
-- Todas as funcionalidades de funcionário
-- Visualização de caixas anteriores
-- Dashboard com métricas e gráficos
-- Autorização de retiradas especiais
+### Gestão de Caixa
 
-### Para Administradores
-- Todas as funcionalidades anteriores
-- Gerenciamento de produtos (CRUD completo)
-- Gerenciamento de feriados (manual e automático)
-- Sincronização com API BrasilAPI
-- Visualização de auditoria do sistema
+- **Abertura de Caixa**
+  - Definição de saldo inicial
+  - Seleção de período (Manhã/Noite)
+  - Verificação automática de feriados
+  - Validação de caixa já aberto
 
-## 🛠️ Tecnologias
+- **Registro de Vendas**
+  - Seleção rápida de produtos cadastrados
+  - Múltiplas formas de pagamento (Dinheiro, PIX, Cartão, Link)
+  - Campo de observações
+  - Cálculo automático de totais
+  - Histórico de vendas do dia
+
+- **Saldo Atual em Tempo Real** ⭐ NOVO
+  - Exibição do saldo disponível no caixa físico
+  - Atualização automática após cada operação
+  - Cálculo: Saldo Inicial + Vendas em Dinheiro + Adições - Retiradas
+
+- **Adições Manuais de Saldo** ⭐ NOVO
+  - Adicionar dinheiro ao caixa (troco, reforço, etc.)
+  - Validação com senha mestra
+  - Registro detalhado com descrição
+  - Inclusão nos relatórios e PDFs
+
+- **Retiradas**
+  - Retiradas de passagem (sem senha)
+  - Outras retiradas (com senha mestra)
+  - Controle de sangrias
+  - Registro de despesas
+
+- **Fechamento de Caixa**
+  - Geração automática de PDF
+  - Resumo financeiro completo
+  - Detalhamento por forma de pagamento
+  - Conferência de dinheiro esperado
+  - Listagem de todas as vendas
+  - Seção de retiradas e adições
+
+### Relatórios e PDFs
+
+- **PDF de Fechamento**
+  - Cabeçalho personalizado
+  - Informações do caixa (data, período, horários)
+  - Tabela de vendas com observações
+  - Resumo financeiro colorido
+  - Detalhamento por forma de pagamento
+  - Conferência de dinheiro
+  - Seção de retiradas
+  - Seção de adições manuais ⭐ NOVO
+  - Layout profissional com cores e ícones
+
+- **Histórico de Caixas**
+  - Visualização de todos os caixas anteriores
+  - Filtros por data e período
+  - Geração de PDF de caixas antigos
+  - Mesmas funcionalidades do PDF atual
+
+### Administração
+
+- **Gestão de Produtos**
+  - Cadastro de produtos
+  - Categorias com cores
+  - Preços e descrições
+  - Ativação/desativação
+
+- **Gestão de Usuários**
+  - Cadastro de operadores
+  - Níveis de permissão (Admin, Gerente, Operador)
+  - Senha mestra para operações críticas
+  - Controle de acesso
+
+- **Feriados**
+  - Cadastro de feriados
+  - Alertas automáticos na abertura de caixa
+  - Integração com BrasilAPI
+
+- **Auditoria**
+  - Log de todas as operações
+  - Rastreamento de usuários
+  - Histórico de ações
+
+## 🛠 Tecnologias
 
 ### Frontend
 - **HTML5** - Estrutura semântica
-- **CSS3** - Design system com glassmorphism
-- **JavaScript ES6+** - Lógica da aplicação
+- **TailwindCSS** - Estilização moderna e responsiva
+- **JavaScript (ES6+)** - Lógica da aplicação
 - **Anime.js** - Animações suaves
-- **Chart.js** - Gráficos interativos
 - **jsPDF** - Geração de PDFs
+- **Material Symbols** - Ícones
 
 ### Backend
 - **Supabase** - Backend as a Service
-  - PostgreSQL com RLS
-  - Autenticação
-  - API REST automática
+  - PostgreSQL - Banco de dados
+  - Authentication - Autenticação
+  - Row Level Security - Segurança
+  - Real-time - Atualizações em tempo real
 
 ### APIs Externas
-- **BrasilAPI** - Feriados nacionais brasileiros
+- **BrasilAPI** - Consulta de feriados nacionais
 
-## 📦 Instalação
+## 📦 Requisitos
 
-### Pré-requisitos
+### Servidor
+- Servidor web (Apache, Nginx, ou similar)
+- Suporte a arquivos estáticos
+- HTTPS (recomendado)
 
-1. Conta no [Supabase](https://supabase.com) (gratuita)
-2. Conta no [GitHub](https://github.com) (para hospedagem)
+### Banco de Dados
+- Conta Supabase (gratuita ou paga)
+- PostgreSQL 14+
 
-### Passo a Passo
+### Navegador
+- Chrome 90+
+- Firefox 88+
+- Safari 14+
+- Edge 90+
 
-1. **Clone ou baixe este repositório**
-   ```bash
-   git clone https://github.com/seu-usuario/mande-flores.git
-   cd mande-flores
+## 🔧 Instalação
+
+### 1. Configuração do Supabase
+
+1. Crie uma conta em [supabase.com](https://supabase.com)
+2. Crie um novo projeto
+3. Execute os scripts SQL na ordem:
+   ```
+   database/01_usuarios.sql
+   database/02_produtos.sql
+   database/03_caixas.sql
+   database/04_vendas.sql
+   database/05_retiradas.sql
+   database/06_feriados.sql
+   database/07_auditoria.sql
+   database/08_funcoes.sql
+   database/09_politicas.sql
+   database/10_adicoes_manuais.sql
    ```
 
-2. **Configure o Supabase**
-   - Siga o guia completo em [docs/SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md)
-   - Execute os scripts SQL fornecidos
-   - Obtenha suas credenciais (URL e Anon Key)
+4. Anote as credenciais:
+   - URL do projeto
+   - Chave pública (anon key)
 
-3. **Configure as credenciais**
-   - Abra o arquivo `js/config.js`
-   - Substitua `SUA_URL_AQUI` pela URL do seu projeto Supabase
-   - Substitua `SUA_CHAVE_AQUI` pela sua Anon Key
+### 2. Configuração do Projeto
 
-4. **Faça o deploy no GitHub Pages**
-   - Siga o guia em [docs/DEPLOY.md](docs/DEPLOY.md)
+1. Clone ou baixe o repositório
+2. Edite `js/config.js`:
+   ```javascript
+   const SUPABASE_URL = 'SUA_URL_AQUI';
+   const SUPABASE_KEY = 'SUA_CHAVE_AQUI';
+   ```
 
-## ⚙️ Configuração
+3. Configure a senha mestra no Supabase:
+   ```sql
+   UPDATE usuarios 
+   SET senha_mestra = crypt('SUA_SENHA', gen_salt('bf'))
+   WHERE cargo IN ('admin', 'gerente');
+   ```
 
-### Configurar Supabase
+### 3. Deploy
 
-Edite o arquivo `js/config.js`:
+**Opção 1: Servidor Local**
+```bash
+# Usando Python
+python -m http.server 8000
 
-```javascript
-const SUPABASE_URL = 'https://seu-projeto.supabase.co';
-const SUPABASE_ANON_KEY = 'sua-chave-anonima-aqui';
+# Usando Node.js
+npx http-server
 ```
 
-### Criar Primeiro Usuário Admin
+**Opção 2: Netlify/Vercel**
+- Faça upload dos arquivos
+- Configure as variáveis de ambiente
+- Deploy automático
 
-Após configurar o Supabase, você precisa criar o primeiro usuário admin manualmente:
+**Opção 3: Servidor Próprio**
+- Faça upload via FTP
+- Configure o servidor web
+- Aponte o domínio
 
-1. Acesse o painel do Supabase
-2. Vá em **Authentication** > **Users**
-3. Clique em **Add user** > **Create new user**
-4. Preencha email e senha
-5. Copie o UUID do usuário criado
-6. Vá em **Table Editor** > **usuarios**
-7. Insira um novo registro:
-   - `id`: Cole o UUID copiado
-   - `email`: Mesmo email do usuário
-   - `nome`: Seu nome
-   - `cargo`: `admin`
-   - `ativo`: `true`
+## 📖 Uso
 
-Agora você pode fazer login com este usuário!
+### Primeiro Acesso
 
-## 🚀 Uso
+1. Acesse o sistema pelo navegador
+2. Faça login com as credenciais padrão
+3. Altere a senha no primeiro acesso
+4. Configure produtos e usuários no painel admin
 
-### Login
+### Fluxo Diário
 
-Acesse a URL do seu GitHub Pages e faça login com as credenciais criadas.
+1. **Manhã**: Abrir caixa com saldo inicial
+2. **Durante o dia**: Registrar vendas
+3. **Quando necessário**: Fazer retiradas ou adicionar saldo
+4. **Fim do dia**: Fechar caixa e gerar PDF
 
-### Fluxo de Trabalho Diário
+### Atalhos de Teclado
 
-1. **Funcionário abre o caixa**
-   - Seleciona data e período (manhã/noite)
-   - Define saldo inicial
-   - Sistema detecta automaticamente feriados
-
-2. **Durante o dia**
-   - Registra vendas conforme acontecem
-   - Pode usar produtos cadastrados ou descrição livre
-   - Registra retiradas de passagem
-
-3. **Ao final do turno**
-   - Clica em "Fechar Caixa"
-   - Sistema gera PDF automaticamente
-   - PDF é baixado com resumo completo
-
-### Dashboard (Gerente/Admin)
-
-- Acesse métricas do mês atual
-- Visualize gráficos de vendas mensais
-- Veja distribuição por forma de pagamento
-- Identifique produtos mais vendidos
-
-### Painel Admin
-
-- Cadastre novos produtos
-- Sincronize feriados nacionais
-- Crie feriados customizados
-- Visualize logs de auditoria
-
-## 📁 Estrutura do Projeto
-
-```
-mande-flores/
-├── index.html              # Página de login
-├── caixa.html             # Interface do caixa
-├── dashboard.html         # Dashboard com gráficos
-├── admin.html             # Painel administrativo
-├── css/
-│   └── style.css          # Sistema de design completo
-├── js/
-│   ├── config.js          # Configurações do Supabase
-│   ├── auth.js            # Autenticação e utilitários
-│   ├── caixa.js           # Lógica do caixa
-│   ├── dashboard.js       # Lógica do dashboard
-│   └── admin.js           # Lógica do painel admin
-├── docs/
-│   ├── SUPABASE_SETUP.md  # Guia de configuração do Supabase
-│   ├── DEPLOY.md          # Guia de deploy no GitHub Pages
-│   ├── MANUAL_USO.md      # Manual do usuário
-│   └── database/          # Scripts SQL
-│       ├── 01_schema.sql
-│       ├── 02_rls_policies.sql
-│       └── 03_functions.sql
-└── README.md              # Este arquivo
-```
+- `Ctrl + N` - Nova venda
+- `Ctrl + R` - Registrar retirada
+- `Ctrl + F` - Fechar caixa
+- `Ctrl + P` - Imprimir/Salvar PDF
 
 ## 📚 Documentação
 
-- [Configuração do Supabase](docs/SUPABASE_SETUP.md)
-- [Deploy no GitHub Pages](docs/DEPLOY.md)
-- [Manual do Usuário](docs/MANUAL_USO.md)
+- [Manual do Usuário](docs/MANUAL_USUARIO.md) - Guia completo para operadores
+- [Documentação Técnica](docs/DOCUMENTACAO_TECNICA.md) - Arquitetura e APIs
+- [Guia de Instalação](docs/GUIA_INSTALACAO.md) - Passo a passo detalhado
+- [Fluxogramas](docs/FLUXOGRAMAS.md) - Diagramas de fluxo
+- [FAQ](docs/FAQ.md) - Perguntas frequentes
+- [Changelog](docs/CHANGELOG.md) - Histórico de versões
 
-## 🎨 Design
+## 🆘 Suporte
 
-O sistema utiliza uma paleta de cores floral suave:
-- Rosa suave (#FFB6C1)
-- Lavanda (#E6E6FA)
-- Verde menta (#98D8C8)
-- Pêssego (#FFE5D9)
+### Problemas Comuns
 
-Com efeitos modernos:
-- Glassmorphism
-- Animações suaves
-- Transições elegantes
-- Responsividade total
+**Erro de autenticação**
+- Verifique as credenciais do Supabase
+- Confirme que os scripts SQL foram executados
+- Limpe o cache do navegador
 
-## 🔒 Segurança
+**PDF não gera**
+- Verifique se há vendas registradas
+- Teste em outro navegador
+- Veja o console (F12) para erros
 
-- **RLS (Row Level Security)** ativo em todas as tabelas
-- Políticas de acesso por cargo
-- Senhas gerenciadas pelo Supabase Auth
-- Auditoria de todas as ações importantes
-- Validação de permissões no frontend e backend
+**Saldo não atualiza**
+- Faça hard refresh (Ctrl + Shift + R)
+- Limpe o cache do navegador
+- Verifique se o JavaScript está habilitado
 
-## 📱 Responsividade
+### Contato
 
-O sistema é totalmente responsivo e funciona perfeitamente em:
-- Desktop (1920x1080, 1366x768)
-- Tablet (768x1024)
-- Mobile (375x667, 414x896)
-
-## 🤝 Contribuindo
-
-Este é um projeto interno, mas sugestões são bem-vindas!
+- **Email**: [seu-email@exemplo.com]
+- **WhatsApp**: [seu-numero]
+- **GitHub**: [seu-usuario]
 
 ## 📄 Licença
 
-Este projeto está sob a licença MIT.
+Este projeto é proprietário e todos os direitos são reservados.
 
-## 👥 Autores
+**Uso Comercial**: Requer licença paga
+**Modificações**: Permitidas apenas com autorização
+**Distribuição**: Proibida sem autorização
 
-Desenvolvido para **Mande Flores** 🌸
+Para adquirir uma licença, entre em contato.
 
 ---
 
-**Nota**: Lembre-se de nunca compartilhar suas credenciais do Supabase publicamente. O arquivo `js/config.js` deve ser configurado localmente e não deve conter credenciais reais no repositório público.
+## 🎨 Screenshots
+
+### Dashboard
+![Dashboard](docs/screenshots/dashboard.png)
+
+### Caixa Aberto
+![Caixa](docs/screenshots/caixa.png)
+
+### PDF Gerado
+![PDF](docs/screenshots/pdf.png)
+
+### Admin
+![Admin](docs/screenshots/admin.png)
+
+---
+
+**Desenvolvido com ❤️ para Mande Flores**
+
+*Versão 5.0 - Última atualização: Dezembro 2025*
