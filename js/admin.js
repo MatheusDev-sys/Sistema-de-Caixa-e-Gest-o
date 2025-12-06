@@ -95,11 +95,11 @@ async function carregarProdutos() {
 
         tbody.innerHTML = data.map(produto => `
             <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-0">
-                <td class="p-4 text-gray-900 dark:text-white font-medium">${produto.nome}</td>
+                <td class="p-4 text-gray-900 dark:text-white font-medium">${security.sanitizeHTML(produto.nome)}</td>
                 <td class="p-4 text-gray-600 dark:text-gray-300">${produto.preco_sugerido ? utils.formatarMoeda(produto.preco_sugerido) : '-'}</td>
                 <td class="p-4">
                     <span class="px-2 py-1 rounded-full text-xs font-medium ${utils.obterCorCategoria(produto.categoria)}">
-                        ${produto.categoria || 'Sem Categoria'}
+                        ${security.sanitizeHTML(produto.categoria || 'Sem Categoria')}
                     </span>
                 </td>
                 <td class="p-4">
@@ -109,7 +109,7 @@ async function carregarProdutos() {
                 </td>
                 <td class="p-4 text-right">
                     <button onclick='editarProduto(${JSON.stringify(produto)})' class="text-primary hover:text-primary/80 font-medium mr-3 transition-colors">Editar</button>
-                    <button onclick="excluirProduto('${produto.id}')" class="text-red-500 hover:text-red-600 font-medium transition-colors">Excluir</button>
+                    <button onclick="excluirProduto('${security.sanitizeAttribute(produto.id)}')" class="text-red-500 hover:text-red-600 font-medium transition-colors">Excluir</button>
                 </td>
             </tr>
         `).join('');
@@ -165,10 +165,16 @@ async function salvarProduto(e) {
 
     try {
         const id = document.getElementById('produtoId').value;
+
+        // Validar e sanitizar entrada
+        const nomeInput = document.getElementById('produtoNome').value;
+        const precoInput = document.getElementById('produtoPreco').value;
+        const categoriaInput = document.getElementById('produtoCategoria').value;
+
         const dados = {
-            nome: document.getElementById('produtoNome').value,
-            preco_sugerido: document.getElementById('produtoPreco').value || null,
-            categoria: document.getElementById('produtoCategoria').value || null,
+            nome: security.validarNomeProduto(nomeInput),
+            preco_sugerido: precoInput ? security.validarPreco(precoInput) : null,
+            categoria: categoriaInput ? categoriaInput.trim() : null,
             ativo: document.getElementById('produtoAtivo').checked
         };
 
@@ -227,14 +233,14 @@ async function carregarFeriados() {
         tbody.innerHTML = data.map(feriado => `
             <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-0">
                 <td class="p-4 text-gray-900 dark:text-white">${utils.formatarData(feriado.data)}</td>
-                <td class="p-4 text-gray-900 dark:text-white font-medium">${feriado.nome}</td>
+                <td class="p-4 text-gray-900 dark:text-white font-medium">${security.sanitizeHTML(feriado.nome)}</td>
                 <td class="p-4">
                     ${feriado.origem === 'api'
                 ? '<span class="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">API</span>'
                 : '<span class="px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400">Manual</span>'}
                 </td>
                 <td class="p-4 text-right">
-                    <button onclick="excluirFeriado('${feriado.id}')" class="text-red-500 hover:text-red-600 font-medium transition-colors">Excluir</button>
+                    <button onclick="excluirFeriado('${security.sanitizeAttribute(feriado.id)}')" class="text-red-500 hover:text-red-600 font-medium transition-colors">Excluir</button>
                 </td>
             </tr>
         `).join('');
@@ -325,15 +331,15 @@ async function carregarUsuarios() {
 
         tbody.innerHTML = data.map(usuario => `
             <tr class="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-0">
-                <td class="p-4 text-gray-900 dark:text-white font-medium">${usuario.nome}</td>
-                <td class="p-4 text-gray-600 dark:text-gray-300">${usuario.email}</td>
+                <td class="p-4 text-gray-900 dark:text-white font-medium">${security.sanitizeHTML(usuario.nome)}</td>
+                <td class="p-4 text-gray-600 dark:text-gray-300">${security.sanitizeHTML(usuario.email)}</td>
                 <td class="p-4">
                     <span class="px-2 py-1 rounded-full text-xs font-medium ${usuario.cargo === 'admin' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' : usuario.cargo === 'gerente' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400'}">
-                        ${usuario.cargo}
+                        ${security.sanitizeHTML(usuario.cargo)}
                     </span>
                 </td>
                 <td class="p-4 text-right">
-                    <button onclick="excluirUsuario('${usuario.id}')" class="text-red-500 hover:text-red-600 font-medium transition-colors">Excluir</button>
+                    <button onclick="excluirUsuario('${security.sanitizeAttribute(usuario.id)}')" class="text-red-500 hover:text-red-600 font-medium transition-colors">Excluir</button>
                 </td>
             </tr>
         `).join('');
@@ -385,5 +391,72 @@ async function carregarAuditoria() {
         `).join('');
     } catch (error) {
         console.error('Erro ao carregar auditoria:', error);
+    }
+}
+
+// Sincronizar feriados com BrasilAPI
+async function sincronizarFeriados() {
+    try {
+        const anoAtual = new Date().getFullYear();
+
+        // Mostrar loading
+        const btn = event.target.closest('button');
+        const originalHTML = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Sincronizando...';
+
+        const response = await fetch(`https://brasilapi.com.br/api/feriados/v1/${anoAtual}`);
+
+        if (!response.ok) {
+            throw new Error('Erro ao buscar feriados da API');
+        }
+
+        const feriadosAPI = await response.json();
+
+        let novos = 0;
+        let existentes = 0;
+
+        for (const feriado of feriadosAPI) {
+            // Verificar se já existe
+            const { data: feriadoExistente } = await supabase
+                .from('feriados')
+                .select('id')
+                .eq('data', feriado.date)
+                .single();
+
+            if (!feriadoExistente) {
+                const { error } = await supabase
+                    .from('feriados')
+                    .insert({
+                        data: feriado.date,
+                        nome: feriado.name,
+                        tipo: 'nacional',
+                        ativo: true
+                    });
+
+                if (!error) novos++;
+            } else {
+                existentes++;
+            }
+        }
+
+        // Restaurar botão
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+
+        alert(`✅ Sincronização concluída!\n\n${novos} feriados novos adicionados\n${existentes} feriados já existiam`);
+        await carregarFeriados();
+
+    } catch (error) {
+        console.error('Erro ao sincronizar feriados:', error);
+
+        // Restaurar botão em caso de erro
+        if (event && event.target) {
+            const btn = event.target.closest('button');
+            btn.disabled = false;
+            btn.innerHTML = '<span class="material-symbols-outlined">sync</span> Sincronizar com API';
+        }
+
+        alert('❌ Erro ao sincronizar feriados: ' + error.message);
     }
 }

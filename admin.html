@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://*.supabase.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.tailwindcss.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://brasilapi.com.br; frame-src 'none';">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Mande Flores</title>
     <link rel="icon" type="image/png" href="assets/images/logo.png">
@@ -71,7 +72,7 @@
                 <a href="caixas-anteriores.html"
                     class="flex items-center gap-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg mb-2 transition-colors">
                     <span class="material-symbols-outlined">history</span>
-                    <span>Histórico</span>
+                    <span>Hist&oacute;rico</span>
                 </a>
                 <a href="admin.html"
                     class="flex items-center gap-3 px-4 py-3 bg-primary/10 text-primary rounded-lg mb-2">
@@ -102,7 +103,7 @@
         <main class="flex-1 p-4 sm:p-6 lg:p-10 overflow-y-auto">
             <div class="mx-auto max-w-7xl">
                 <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Painel Administrativo</h1>
-                <p class="text-gray-600 dark:text-gray-400 mb-8">Gerencie produtos, feriados, usuários e auditoria.</p>
+                <p class="text-gray-600 dark:text-gray-400 mb-8">Gerencie produtos, feriados, usu&aacute;rios e auditoria.</p>
 
                 <!-- TABS -->
                 <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
@@ -112,7 +113,7 @@
                         <button onclick="mudarTab('feriados')" id="tab-feriados"
                             class="tab-btn px-4 py-2 border-b-2 border-transparent text-gray-600 dark:text-gray-400 hover:text-primary font-medium transition-colors">Feriados</button>
                         <button onclick="mudarTab('usuarios')" id="tab-usuarios"
-                            class="tab-btn px-4 py-2 border-b-2 border-transparent text-gray-600 dark:text-gray-400 hover:text-primary font-medium transition-colors">Usuários</button>
+                            class="tab-btn px-4 py-2 border-b-2 border-transparent text-gray-600 dark:text-gray-400 hover:text-primary font-medium transition-colors">Usu&aacute;rios</button>
                         <button onclick="mudarTab('auditoria')" id="tab-auditoria"
                             class="tab-btn px-4 py-2 border-b-2 border-transparent text-gray-600 dark:text-gray-400 hover:text-primary font-medium transition-colors">Auditoria</button>
                     </nav>
@@ -135,13 +136,13 @@
                                 <tr>
                                     <th class="p-4 text-left text-sm font-semibold text-gray-900 dark:text-white">Nome
                                     </th>
-                                    <th class="p-4 text-left text-sm font-semibold text-gray-900 dark:text-white">Preço
+                                    <th class="p-4 text-left text-sm font-semibold text-gray-900 dark:text-white">Pre&ccedil;o
                                     </th>
                                     <th class="p-4 text-left text-sm font-semibold text-gray-900 dark:text-white">
                                         Categoria</th>
                                     <th class="p-4 text-left text-sm font-semibold text-gray-900 dark:text-white">Status
                                     </th>
-                                    <th class="p-4 text-right text-sm font-semibold text-gray-900 dark:text-white">Ações
+                                    <th class="p-4 text-right text-sm font-semibold text-gray-900 dark:text-white">A&ccedil;&otilde;es
                                     </th>
                                 </tr>
                             </thead>
@@ -175,7 +176,7 @@
                                     </th>
                                     <th class="p-4 text-left text-sm font-semibold text-gray-900 dark:text-white">Origem
                                     </th>
-                                    <th class="p-4 text-right text-sm font-semibold text-gray-900 dark:text-white">Ações
+                                    <th class="p-4 text-right text-sm font-semibold text-gray-900 dark:text-white">A&ccedil;&otilde;es
                                     </th>
                                 </tr>
                             </thead>
@@ -191,7 +192,7 @@
                 <!-- CONTEÚDO USUÁRIOS -->
                 <div id="content-usuarios" class="tab-content">
                     <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Gerenciar Usuários</h2>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Gerenciar Usu&aacute;rios</h2>
                     </div>
                     <div
                         class="bg-white/50 dark:bg-black/20 backdrop-blur-lg rounded-xl border border-white/30 dark:border-black/30 overflow-hidden">
@@ -204,7 +205,7 @@
                                     </th>
                                     <th class="p-4 text-left text-sm font-semibold text-gray-900 dark:text-white">Cargo
                                     </th>
-                                    <th class="p-4 text-right text-sm font-semibold text-gray-900 dark:text-white">Ações
+                                    <th class="p-4 text-right text-sm font-semibold text-gray-900 dark:text-white">A&ccedil;&otilde;es
                                     </th>
                                 </tr>
                             </thead>
@@ -265,7 +266,7 @@
                 </label>
 
                 <label class="flex flex-col">
-                    <span class="text-gray-900 dark:text-white text-sm font-medium pb-2">Preço Sugerido</span>
+                    <span class="text-gray-900 dark:text-white text-sm font-medium pb-2">Pre&ccedil;o Sugerido</span>
                     <input type="number" id="produtoPreco" step="0.01" min="0"
                         class="form-input rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/50 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 h-12 p-3"
                         placeholder="R$ 0,00" />
@@ -336,6 +337,7 @@
     <!-- Scripts -->
     <script src="js/notificacoes.js"></script>
     <script src="js/config.js"></script>
+    <script src="js/security.js"></script>
     <script src="js/auth.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
