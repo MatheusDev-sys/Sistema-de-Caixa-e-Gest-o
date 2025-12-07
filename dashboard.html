@@ -12,7 +12,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="css/mobile-responsive.css">
+    <link rel="stylesheet" href="css/mobile-fix.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
     <script>
         tailwind.config = {
             darkMode: "class",
@@ -68,7 +71,7 @@
                     </div>
                                         <div class="px-2 flex items-center gap-3">
                         <div>
-                            <p class="text-sm text-gray-700 dark:text-gray-300 font-medium" id="sidebarUserName">UsuÃ¡rio</p>
+                            <p class="text-sm text-gray-700 dark:text-gray-300 font-medium" id="sidebarUserName">Usuário</p>
                             <p class="text-xs text-gray-500 dark:text-gray-400 capitalize" id="sidebarUserCargo">Cargo</p>
                         </div>
                     </div>
@@ -136,7 +139,7 @@
                             <div
                                 class="flex flex-col gap-2 rounded-xl bg-white/50 dark:bg-black/20 backdrop-blur-lg border border-white/30 dark:border-black/30 shadow-lg p-6 metric-card opacity-0">
                                 <p class="text-gray-700 dark:text-gray-300 text-base font-medium leading-normal">Total
-                                    vendido no mÃªs</p>
+                                    vendido no mês</p>
                                 <p id="totalMes"
                                     class="text-gray-900 dark:text-white tracking-tight text-3xl font-bold leading-tight">
                                     R$ 0,00</p>
@@ -170,7 +173,7 @@
                                 <p id="vendasSemana"
                                     class="text-gray-900 dark:text-white tracking-tight text-3xl font-bold leading-tight">
                                     R$ 0,00</p>
-                                <p class="text-gray-500 dark:text-gray-400 text-sm font-medium leading-normal">Ãšltimos 7
+                                <p class="text-gray-500 dark:text-gray-400 text-sm font-medium leading-normal">Últimos 7
                                     dias</p>
                             </div>
                         </div>
@@ -226,6 +229,7 @@
             }
         });
     </script>
+    <script src="js/mobile-menu.js"></script>
     <script src="js/dashboard.js"></script>
     <!-- Modal Avatar -->
     <div id="modalAvatar" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">

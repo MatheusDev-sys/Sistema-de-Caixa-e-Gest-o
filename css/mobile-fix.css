@@ -1,0 +1,13 @@
+/* Correção para sidebar transparente no dashboard/histórico */
+/* Adiciona fundo sólido quando sidebar está aberto em mobile */
+
+@media (max-width: 768px) {
+    aside.mobile-open {
+        background: white !important;
+        backdrop-filter: none !important;
+    }
+
+    .dark aside.mobile-open {
+        background: #1c1121 !important;
+    }
+}
