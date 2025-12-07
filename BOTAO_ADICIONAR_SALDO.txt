@@ -1,0 +1,13 @@
+<!-- COPIE ESTE CÓDIGO E COLE NO caixa.html ENTRE O BOTÃO DE RETIRADA E O BOTÃO DE FECHAMENTO -->
+<!-- Procure pela linha que tem "<!-- Fechamento -->" e cole ANTES dela -->
+
+                                <!-- Adicionar Saldo -->
+                                <button onclick="document.getElementById('modalAdicao').classList.remove('hidden')"
+                                    class="flex flex-col rounded-xl bg-white/50 dark:bg-black/20 backdrop-blur-lg border border-white/30 dark:border-black/30 shadow-lg p-6 justify-center items-center text-center hover:bg-white/70 dark:hover:bg-black/30 transition-colors">
+                                    <span class="material-symbols-outlined text-4xl text-green-600 mb-2">add_circle</span>
+                                    <p
+                                        class="text-gray-900 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em] mb-2">
+                                        Adicionar Saldo</p>
+                                    <p class="text-gray-600 dark:text-gray-300 text-sm font-normal leading-normal">
+                                        Adicionar dinheiro ao caixa</p>
+                                </button>

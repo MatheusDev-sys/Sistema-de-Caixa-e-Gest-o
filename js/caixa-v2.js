@@ -616,31 +616,22 @@ async function atualizarTotais() {
 
 // Fechar caixa e gerar PDF
 async function fecharCaixa() {
-    console.log('🚀 fecharCaixa() chamada!');
-
-    if (!window.confirm('Deseja realmente fechar o caixa e gerar o PDF?')) {
-        console.log('❌ Usuário cancelou');
+    if (!utils.confirmarAcao('Deseja realmente fechar o caixa e gerar o PDF?')) {
         return;
     }
 
-    console.log('✅ Usuário confirmou, iniciando fechamento...');
     utils.mostrarLoading();
 
     try {
-        console.log('1️⃣ Obtendo usuário...');
         const usuario = await auth.obterUsuarioAtual();
-        console.log('✅ Usuário:', usuario);
 
         // Calcular totais
-        console.log('2️⃣ Calculando totais...');
         const totalVendas = vendas.reduce((sum, v) => sum + parseFloat(v.valor), 0);
         const totalRetiradas = retiradas.reduce((sum, r) => sum + parseFloat(r.valor), 0);
         const totalAdicoes = adicoes.reduce((sum, a) => sum + parseFloat(a.valor), 0);
         const saldoFinal = parseFloat(caixaAtual.saldo_inicial) + totalVendas + totalAdicoes - totalRetiradas;
-        console.log('✅ Totais calculados:', { totalVendas, totalRetiradas, totalAdicoes, saldoFinal });
 
         // Atualizar caixa
-        console.log('3️⃣ Atualizando caixa no Supabase...');
         const { error } = await supabase
             .from('caixas')
             .update({
@@ -651,30 +642,21 @@ async function fecharCaixa() {
             })
             .eq('id', caixaAtual.id);
 
-        if (error) {
-            console.error('❌ Erro ao atualizar caixa:', error);
-            throw error;
-        }
-        console.log('✅ Caixa atualizado no banco');
+        if (error) throw error;
 
         // Gerar PDF
-        console.log('4️⃣ Gerando PDF...');
         await gerarPDF();
-        console.log('✅ PDF gerado');
 
         utils.mostrarNotificacao('Caixa fechado com sucesso!', 'success');
         await utils.registrarAuditoria('FECHAR_CAIXA', 'caixas', { caixa_id: caixaAtual.id });
 
         // Recarregar página após 2 segundos
-        console.log('5️⃣ Recarregando página em 2 segundos...');
         setTimeout(() => {
             window.location.reload();
         }, 2000);
 
     } catch (error) {
-        console.error('💥 ERRO em fecharCaixa:', error);
-        console.error('💥 Mensagem:', error.message);
-        console.error('💥 Stack:', error.stack);
+        console.error('Erro ao fechar caixa:', error);
         utils.mostrarNotificacao(error.message, 'error');
     } finally {
         utils.esconderLoading();
@@ -1159,37 +1141,19 @@ function abrirModalEditarVenda(vendaId) {
 
     // Configurar evento de submit
     const form = document.getElementById('editarVendaForm');
-    console.log('📝 Configurando event listener do formulário');
-
-    // Remover todos os event listeners anteriores clonando o formulário
-    const novoForm = form.cloneNode(true);
-    form.parentNode.replaceChild(novoForm, form);
-
-    // Adicionar novo event listener
-    novoForm.addEventListener('submit', async (e) => {
-        console.log('💾 Formulário submetido!');
-        await salvarEdicaoVenda(e);
-    });
-
-    console.log('✅ Event listener configurado');
+    form.removeEventListener('submit', salvarEdicaoVenda); // Remove o anterior se houver
+    form.addEventListener('submit', salvarEdicaoVenda);
 }
 
 // Salvar edição de venda
 async function salvarEdicaoVenda(e) {
     e.preventDefault();
-    console.log('🚀 Iniciando salvarEdicaoVenda');
     utils.mostrarLoading();
 
     try {
-        console.log('1️⃣ Obtendo usuário atual...');
         const usuario = await auth.obterUsuarioAtual();
-        console.log('✅ Usuário:', usuario);
-
-        const vendaId = document.getElementById('editVendaId').value;
-        console.log('2️⃣ Venda ID:', vendaId);
-
+        const vendaId = document.getElementById('editVendaId').value; // UUID, manter como string
         const vendaOriginal = vendas.find(v => String(v.id) === String(vendaId));
-        console.log('3️⃣ Venda original:', vendaOriginal);
 
         const dadosAtualizados = {
             descricao: document.getElementById('editDescricaoVenda').value,
@@ -1198,23 +1162,15 @@ async function salvarEdicaoVenda(e) {
             pagamento: document.getElementById('editPagamentoVenda').value,
             observacao: document.getElementById('editObservacaoVenda').value || null
         };
-        console.log('4️⃣ Dados atualizados:', dadosAtualizados);
 
         // Atualizar no banco
-        console.log('5️⃣ Atualizando no Supabase...');
         const { error } = await supabase
             .from('vendas')
             .update(dadosAtualizados)
             .eq('id', vendaId);
 
-        console.log('6️⃣ Resposta Supabase - Error:', error);
+        if (error) throw error;
 
-        if (error) {
-            console.error('❌ Erro do Supabase:', error);
-            throw error;
-        }
-
-        console.log('7️⃣ Registrando auditoria...');
         // Registrar auditoria
         await utils.registrarAuditoria('EDITAR_VENDA', 'vendas', {
             venda_id: vendaId,
@@ -1230,37 +1186,19 @@ async function salvarEdicaoVenda(e) {
             }
         });
 
-        console.log('8️⃣ Fechando modal...');
         // Fechar modal
         document.getElementById('modalEditarVenda').classList.add('hidden');
 
-        console.log('9️⃣ Recarregando vendas...');
         // Recarregar vendas
         await carregarVendas();
-
-        console.log('🔟 Atualizando totais...');
         await atualizarTotais();
 
-        console.log('✅ Mostrando notificação de sucesso...');
         utils.mostrarNotificacao('Venda atualizada com sucesso!', 'success');
 
     } catch (error) {
-        console.error('💥 ERRO CAPTURADO:', error);
-        console.error('💥 Mensagem:', error.message);
-        console.error('💥 Stack:', error.stack);
+        console.error('Erro ao editar venda:', error);
         utils.mostrarNotificacao(error.message, 'error');
     } finally {
-        console.log('🏁 Finalizando...');
         utils.esconderLoading();
     }
 }
-
-// Conectar botão de fechar caixa
-document.addEventListener('DOMContentLoaded', () => {
-    const btnFecharCaixa = document.getElementById('fecharCaixaBtn');
-    if (btnFecharCaixa) {
-        btnFecharCaixa.addEventListener('click', fecharCaixa);
-        console.log('✅ Botão Fechar Caixa conectado');
-    }
-});
-

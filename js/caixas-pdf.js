@@ -108,8 +108,7 @@ async function gerarPDFCaixa(caixaId) {
             'Dinheiro': 0,
             'PIX WhatsApp': 0,
             'PIX Maquininha': 0,
-            'Débito': 0,
-            'Crédito': 0,
+            'Cartão': 0,  // Agrupa débito, crédito e cartão
             'Link Pagamento': 0
         };
 
@@ -119,8 +118,9 @@ async function gerarPDFCaixa(caixaId) {
                 'dinheiro': 'Dinheiro',
                 'pix_whatsapp': 'PIX WhatsApp',
                 'pix_maquininha': 'PIX Maquininha',
-                'debito': 'Débito',
-                'credito': 'Crédito',
+                'debito': 'Cartão',  // Unificado
+                'credito': 'Cartão', // Unificado
+                'cartao': 'Cartão',  // Nova opção
                 'link_pagamento': 'Link Pagamento'
             };
             const forma = formas[pagamento] || pagamento;
