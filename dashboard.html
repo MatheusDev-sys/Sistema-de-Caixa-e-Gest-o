@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://*.supabase.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.tailwindcss.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://brasilapi.com.br; frame-src 'none';">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://*.supabase.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.tailwindcss.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://cdn.jsdelivr.net https://brasilapi.com.br; frame-src 'none';">
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Dashboard - Mande Flores</title>
     <link rel="icon" type="image/png" href="assets/images/logo.png">
@@ -11,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
     <link rel="stylesheet" href="css/mobile-responsive.css">
     <link rel="stylesheet" href="css/mobile-fix.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -69,10 +70,12 @@
                         </div>
                         <h1 class="text-xl font-bold text-gray-900 dark:text-white">Mande Flores</h1>
                     </div>
-                                        <div class="px-2 flex items-center gap-3">
+                    <div class="px-2 flex items-center gap-3">
                         <div>
-                            <p class="text-sm text-gray-700 dark:text-gray-300 font-medium" id="sidebarUserName">Usuário</p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 capitalize" id="sidebarUserCargo">Cargo</p>
+                            <p class="text-sm text-gray-700 dark:text-gray-300 font-medium" id="sidebarUserName">Usuário
+                            </p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 capitalize" id="sidebarUserCargo">Cargo
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -207,38 +210,43 @@
     </div>
 
     <!-- Scripts -->
-    <script src="js/notificacoes.js"></script>    <script src="js/config.js"></script>
+    <script src="js/notificacoes.js"></script>
+    <script src="js/config.js"></script>
     <script src="js/security.js"></script>
-    <script src="js/auth.js">    <script src="js/avatar.js"></script></script>
+    <script src="js/auth.js">    < script src = "js/avatar.js" ></script>
+    </script>
     <!-- components.js REMOVIDO para evitar duplicaÃ§Ã£o -->
     <script>
-        // Inicializar sidebar
-        document.addEventListener('DOMContentLoaded', async () => {
-            const session = await auth.verificarAutenticacao();
-            if (session) {
-                const usuario = await auth.obterUsuarioAtual();
-                if (usuario) {
-                    document.getElementById('sidebarUserName').textContent = usuario.nome;
-                    document.getElementById('sidebarUserCargo').textContent = usuario.cargo;
+            // Inicializar sidebar
+            document.addEventListener('DOMContentLoaded', async () => {
+                const session = await auth.verificarAutenticacao();
+                if (session) {
+                    const usuario = await auth.obterUsuarioAtual();
+                    if (usuario) {
+                        document.getElementById('sidebarUserName').textContent = usuario.nome;
+                        document.getElementById('sidebarUserCargo').textContent = usuario.cargo;
 
-                    // Mostrar link admin se for admin/gerente
-                    if (usuario.cargo === 'admin' || usuario.cargo === 'gerente') {
-                        document.getElementById('linkAdminSidebar').style.display = 'flex';
+                        // Mostrar link admin se for admin/gerente
+                        if (usuario.cargo === 'admin' || usuario.cargo === 'gerente') {
+                            document.getElementById('linkAdminSidebar').style.display = 'flex';
+                        }
                     }
                 }
-            }
-        });
+            });
     </script>
     <script src="js/mobile-menu.js"></script>
     <script src="js/dashboard.js"></script>
     <!-- Modal Avatar -->
-    <div id="modalAvatar" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div id="modalAvatar"
+        class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full">
             <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Alterar Avatar</h3>
             <input type="file" id="avatarInput" accept="image/jpeg,image/png" class="mb-4 w-full" />
             <div class="flex gap-3">
-                <button onclick="salvarAvatar()" class="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-primary/90">Salvar</button>
-                <button onclick="document.getElementById('modalAvatar').classList.add('hidden')" class="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white py-2 rounded-lg hover:bg-gray-300">Cancelar</button>
+                <button onclick="salvarAvatar()"
+                    class="flex-1 bg-primary text-white py-2 rounded-lg hover:bg-primary/90">Salvar</button>
+                <button onclick="document.getElementById('modalAvatar').classList.add('hidden')"
+                    class="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white py-2 rounded-lg hover:bg-gray-300">Cancelar</button>
             </div>
         </div>
     </div>
@@ -246,4 +254,3 @@
 </body>
 
 </html>
-
