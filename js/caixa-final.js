@@ -130,6 +130,10 @@ async function verificarFeriado(data) {
         const feriadoInfo = document.getElementById('feriadoInfo');
         const periodoSelect = document.getElementById('periodoAbertura');
 
+        // Verificar se é domingo
+        const diaSemana = new Date(data + 'T00:00:00').getDay();
+        const ehDomingo = diaSemana === 0;
+
         if (feriado) {
             const nomeFeriado = feriado.nome || feriado.name;
             feriadoInfo.textContent = `🎉 Bom feriado - ${nomeFeriado}!`;
@@ -137,7 +141,23 @@ async function verificarFeriado(data) {
 
             // Desabilitar período noite em feriados
             periodoSelect.value = 'manha';
-            periodoSelect.querySelector('option[value="noite"]').disabled = true;
+            const opcaoNoite = periodoSelect.querySelector('option[value="noite"]');
+            if (opcaoNoite) opcaoNoite.disabled = true;
+
+            anime({
+                targets: '#feriadoInfo',
+                scale: [0.9, 1],
+                opacity: [0, 1],
+                duration: 500,
+                easing: 'easeOutElastic(1, .5)'
+            });
+        } else if (ehDomingo) {
+            // Se não é feriado mas é domingo
+            feriadoInfo.textContent = '🌸 Bom domingo!';
+            feriadoInfo.style.display = 'block';
+            periodoSelect.value = 'manha';
+            const opcaoNoite = periodoSelect.querySelector('option[value="noite"]');
+            if (opcaoNoite) opcaoNoite.disabled = true;
 
             anime({
                 targets: '#feriadoInfo',
@@ -147,17 +167,10 @@ async function verificarFeriado(data) {
                 easing: 'easeOutElastic(1, .5)'
             });
         } else {
+            // Dia normal - habilitar período noite
             feriadoInfo.style.display = 'none';
-            periodoSelect.querySelector('option[value="noite"]').disabled = false;
-        }
-
-        // Verificar se é domingo
-        const diaSemana = new Date(data + 'T00:00:00').getDay();
-        if (diaSemana === 0) {
-            feriadoInfo.textContent = '🌸 Bom domingo!';
-            feriadoInfo.style.display = 'block';
-            periodoSelect.value = 'manha';
-            periodoSelect.querySelector('option[value="noite"]').disabled = true;
+            const opcaoNoite = periodoSelect.querySelector('option[value="noite"]');
+            if (opcaoNoite) opcaoNoite.disabled = false;
         }
 
     } catch (error) {
@@ -227,6 +240,31 @@ async function abrirCaixa(e) {
         const periodo = document.getElementById('periodoAbertura').value;
         const saldoInicial = parseFloat(document.getElementById('saldoInicial').value);
 
+        // Verificar se é domingo ou feriado
+        const diaSemana = new Date(data + 'T00:00:00').getDay();
+        const ano = new Date(data).getFullYear();
+
+        // Buscar feriados da API
+        const responseFeriados = await fetch(`https://brasilapi.com.br/api/feriados/v1/${ano}`);
+        const feriadosAPI = await responseFeriados.json();
+        const feriadoAPI = feriadosAPI.find(f => f.date === data);
+
+        // Buscar feriados customizados
+        const { data: feriadosCustom } = await supabase
+            .from('feriados')
+            .select('*')
+            .eq('data', data)
+            .eq('ativo', true);
+
+        const feriadoCustom = feriadosCustom && feriadosCustom.length > 0 ? feriadosCustom[0] : null;
+        const ehFeriado = !!(feriadoAPI || feriadoCustom);
+        const ehDomingo = diaSemana === 0;
+
+        // Em domingos e feriados, só permite manhã
+        if ((ehDomingo || ehFeriado) && periodo === 'noite') {
+            throw new Error('Em domingos e feriados, apenas o período da manhã pode ser aberto.');
+        }
+
         // Verificar se já existe caixa para esta data/período
         const { data: caixaExistente } = await supabase
             .from('caixas')
@@ -236,6 +274,19 @@ async function abrirCaixa(e) {
 
         if (caixaExistente && caixaExistente.length > 0) {
             throw new Error('Já existe um caixa aberto para esta data e período.');
+        }
+
+        // Se for período noite, verificar se existe caixa da manhã
+        if (periodo === 'noite') {
+            const { data: caixaManha } = await supabase
+                .from('caixas')
+                .select('*')
+                .eq('data', data)
+                .eq('periodo', 'manha');
+
+            if (!caixaManha || caixaManha.length === 0) {
+                throw new Error('Para abrir o caixa da noite, é necessário que o caixa da manhã já tenha sido aberto.');
+            }
         }
 
         // Criar novo caixa
