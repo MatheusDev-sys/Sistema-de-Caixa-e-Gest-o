@@ -265,7 +265,7 @@ async function abrirCaixa(e) {
             throw new Error('Em domingos e feriados, apenas o período da manhã pode ser aberto.');
         }
 
-        // Verificar se já existe caixa para esta data/período
+        // Verificar se já existe caixa para esta data/período (aberto OU fechado)
         const { data: caixaExistente } = await supabase
             .from('caixas')
             .select('*')
@@ -273,21 +273,11 @@ async function abrirCaixa(e) {
             .eq('periodo', periodo);
 
         if (caixaExistente && caixaExistente.length > 0) {
-            throw new Error('Já existe um caixa aberto para esta data e período.');
+            const statusCaixa = caixaExistente[0].status === 'aberto' ? 'aberto' : 'já foi fechado';
+            throw new Error(`Já existe um caixa do período "${periodo === 'manha' ? 'Manhã' : 'Noite'}" para esta data (${statusCaixa}). Não é possível abrir novamente.`);
         }
 
-        // Se for período noite, verificar se existe caixa da manhã
-        if (periodo === 'noite') {
-            const { data: caixaManha } = await supabase
-                .from('caixas')
-                .select('*')
-                .eq('data', data)
-                .eq('periodo', 'manha');
 
-            if (!caixaManha || caixaManha.length === 0) {
-                throw new Error('Para abrir o caixa da noite, é necessário que o caixa da manhã já tenha sido aberto.');
-            }
-        }
 
         // Criar novo caixa
         const { data: novoCaixa, error } = await supabase
