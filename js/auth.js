@@ -104,47 +104,101 @@ function obterSaudacao() {
     return 'Boa noite';
 }
 
-// Mostrar notificação
+// Mostrar notificação - Usa o sistema estilizado de notificacoes.js
 function mostrarNotificacao(mensagem, tipo = 'info') {
-    const container = document.getElementById('notificacoes') || criarContainerNotificacoes();
+    // Se o sistema de notificações estilizado estiver disponível, usar ele
+    if (typeof Notificacao !== 'undefined' && Notificacao.mostrar) {
+        Notificacao.mostrar(mensagem, tipo);
+    } else {
+        // Fallback: criar notificação simples mas com estilo
+        const container = document.getElementById('notificacao-container') || criarContainerNotificacoes();
 
-    const notificacao = document.createElement('div');
-    notificacao.className = `alert alert-${tipo}`;
-    notificacao.textContent = mensagem;
+        const cores = {
+            success: '#10b981',
+            error: '#ef4444',
+            warning: '#f59e0b',
+            info: '#3b82f6'
+        };
 
-    container.appendChild(notificacao);
+        const bg = cores[tipo] || cores.info;
 
-    // Animar entrada
-    anime({
-        targets: notificacao,
-        translateX: [300, 0],
-        opacity: [0, 1],
-        duration: 300,
-        easing: 'easeOutQuad'
-    });
+        const notificacao = document.createElement('div');
+        notificacao.style.cssText = `
+            background: ${bg};
+            color: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3), 0 6px 12px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 300px;
+        `;
+        notificacao.textContent = mensagem;
 
-    // Remover após 5 segundos
-    setTimeout(() => {
-        anime({
-            targets: notificacao,
-            translateX: [0, 300],
-            opacity: [1, 0],
-            duration: 300,
-            easing: 'easeInQuad',
-            complete: () => notificacao.remove()
-        });
-    }, 5000);
+        container.appendChild(notificacao);
+
+        // Animar entrada se anime.js estiver disponível
+        if (typeof anime !== 'undefined') {
+            anime({
+                targets: notificacao,
+                translateX: [300, 0],
+                opacity: [0, 1],
+                duration: 300,
+                easing: 'easeOutQuad'
+            });
+        }
+
+        // Remover ao clicar
+        notificacao.onclick = () => {
+            if (typeof anime !== 'undefined') {
+                anime({
+                    targets: notificacao,
+                    translateX: [0, 300],
+                    opacity: [1, 0],
+                    duration: 300,
+                    easing: 'easeInQuad',
+                    complete: () => notificacao.remove()
+                });
+            } else {
+                notificacao.remove();
+            }
+        };
+
+        // Auto-remover após 5 segundos
+        setTimeout(() => {
+            if (notificacao.parentNode) {
+                if (typeof anime !== 'undefined') {
+                    anime({
+                        targets: notificacao,
+                        translateX: [0, 300],
+                        opacity: [1, 0],
+                        duration: 300,
+                        easing: 'easeInQuad',
+                        complete: () => notificacao.remove()
+                    });
+                } else {
+                    notificacao.remove();
+                }
+            }
+        }, 5000);
+    }
 }
 
 // Criar container de notificações
 function criarContainerNotificacoes() {
     const container = document.createElement('div');
-    container.id = 'notificacoes';
+    container.id = 'notificacao-container';
     container.style.cssText = `
         position: fixed;
         top: 20px;
         right: 20px;
-        z-index: 10000;
+        z-index: 9999;
         display: flex;
         flex-direction: column;
         gap: 10px;

@@ -41,8 +41,10 @@ const Notificacao = {
             background: ${config.bg};
             color: white;
             padding: 16px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3), 0 6px 12px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
             display: flex;
             align-items: center;
             gap: 12px;
@@ -51,7 +53,19 @@ const Notificacao = {
             font-weight: 500;
             animation: slideIn 0.3s ease-out;
             cursor: pointer;
+            min-width: 300px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         `;
+
+        // Efeito hover
+        notif.onmouseenter = () => {
+            notif.style.transform = 'translateY(-2px)';
+            notif.style.boxShadow = '0 12px 30px rgba(0,0,0,0.35), 0 8px 15px rgba(0,0,0,0.25)';
+        };
+        notif.onmouseleave = () => {
+            notif.style.transform = 'translateY(0)';
+            notif.style.boxShadow = '0 10px 25px rgba(0,0,0,0.3), 0 6px 12px rgba(0,0,0,0.2)';
+        };
 
         notif.innerHTML = `
             <span style="font-size: 20px; font-weight: bold;">${config.icon}</span>
